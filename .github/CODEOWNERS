@@ -1,0 +1,11 @@
+# Kernel (architecture owners)
+/kernel/        @kartikmishra210 @rootmnt
+
+# Drivers
+/drivers/       @krishna-stone
+
+# Modules
+/modules/       @Amarworks
+
+# Interfaces
+/interface/     @shresth136
