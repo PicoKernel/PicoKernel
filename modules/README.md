@@ -1,13 +1,209 @@
-# Modules
+# Modules Documentation
 
 ## Team Members
-- @Nikhil-771 (Lead)
+- @Nikhil-771
 - @Amarworks
 
-## What are Modules?
-Modules are **OS services written in pure C** that provide system functionallity using **kernel APIs only**. They never access hardware directly and never act like drivers.
+---
 
-Modules are responsible for : 
-- Providing system information (e.g. `uptime` , `sysinfo` ,`version`)
-- Processing logic for user commands
-- Acting as a safe layer between Interface and Kernel
+## Definition of Modules
+
+Modules are the **features of the operating system**. They implement OS-level services and expose functionality to the Interface layer through stable APIs.
+
+
+In general, modules may handle:
+- system information services
+- logging and diagnostics
+- command routing logic
+- statistics and monitoring
+- protocol delegation (future)
+
+---
+
+## Our Implementation of Modules within PicoKernel
+
+Since PicoKernel targets embedded hardware (RP2350 Pico 2W), the module model differs from traditional operating systems.
+
+Because the hardware lacks:
+- MMU
+- kernel-user separation
+- virtual memory
+
+modules must be simpler in mechanism but stricter in discipline.
+
+All modules are:
+- statically compiled
+- always present
+- executed synchronously
+- bounded in execution time
+
+No module is dynamically loaded, unloaded, or replaced at runtime.
+
+---
+
+## Module Responsibilities
+
+The Modules layer is responsible for:
+- implementing OS services
+- providing stable APIs to Interface layer
+- performing bounded logical work
+- validating inputs and outputs
+- returning structured results
+
+Modules are not responsible for:
+- scheduling
+- memory management
+- hardware access
+- interrupts
+- system initialization
+
+---
+
+## Layer Model
+
+```
+User (CLI)
+   ↓
+Interface
+   ↓
+Modules
+   ↓
+Kernel (APIs only)
+   ↓
+Drivers
+   ↓
+Hardware (RP2350 / ESP32)
+```
+
+The kernel enforces all layer boundaries.
+
+---
+
+## Execution Model
+
+Modules are invoked synchronously by the Interface layer or kernel routing logic.
+
+Rules:
+- modules must return
+- modules must not block
+- modules must not sleep
+- modules must complete in bounded time
+
+Long-running work is delegated through protocol APIs (ESP32 integration (later part of the project)).
+
+---
+
+## Module Structure
+
+Each module resides in its own directory under `modules/`:
+
+```
+modules/
+└── <module_name>/
+    ├── <module_name>.h
+    └── <module_name>.c
+```
+
+The header defines the public API.  
+The source file contains the implementation.
+
+---
+
+## Module Registration
+
+Modules are registered at boot via a static registry table.
+
+Registration is data-driven, not code-driven. This ensures:
+- scalability
+- no kernel modification per module
+- predictable routing
+
+---
+## Future plans 
+### Part 1: Development Plan(Starting soon...)
+
+Module development will proceed through small isolated projects before integration.
+
+Only Project 9 and onward will be committed to the main repository, these 9 projects will be under the PicoKernel/procrastinating-rats repository.
+
+#### Project 1 — Minimal Module Skeleton
+Establish module structure and API separation.
+
+#### Project 2 — Module Registration Model
+Implement data-based module registration.
+
+#### Project 3 — Kernel Interaction Discipline
+Enforce API-only kernel interaction.
+
+#### Project 4 — Bounded Execution
+Ensure modules cannot stall the system.
+
+#### Project 5 — Protocol Delegation
+Delegate heavy work via protocol APIs.
+
+#### Project 6 — Error Handling
+Standardize error reporting and logging.
+
+#### Project 7 — Secure Module Design
+Apply defensive programming rules.
+
+#### Project 8 — Transition to PicoKernel Modules
+Move from scaffolding to real OS modules.
+
+---
+
+### Part 2: Module List(Tailored for PicoKernel integration...)
+
+#### Phase 1 — Core OS Modules
+```
+uptime
+sysinfo
+buildinfo
+version
+logging
+stats
+paniclog
+command_registry
+help
+```
+
+#### Phase 2 — Extended OS Modules
+```
+eventbus
+netproxy
+telemetry
+```
+
+#### Phase 3 — Network / Time Modules (ESP32-backed)
+```
+wifi
+bluetooth
+network
+ntp
+time
+date
+webserver
+```
+
+These modules contain logic/implementation only and do not access hardware directly.
+
+---
+
+### Modules/code which should not be included within the modules folder
+
+The Modules Team will not implement:
+- scheduler
+- UART
+- GPIO
+- timers
+- interrupts
+- boot logic
+- kernel internals
+- ESP32 firmware
+- ...
+
+Any module requiring hardware access is invalid by design.
+
+---
+
+This concludes our Team's current plans and goals, as we build and learn, we will keep this README updated! See ya!
