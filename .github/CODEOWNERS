@@ -2,10 +2,10 @@
 /kernel/        @kartikmishra210 @rootmnt
 
 # Drivers
-/drivers/       @krishna-stone
+/drivers/       @krishna-stone @kartikmishra210 @rootmnt
 
 # Modules
-/modules/       @Nikhil-771
+/modules/       @Nikhil-771 @kartikmishra210 @rootmnt
 
 # Interfaces
-/interface/     @shresth136
+/interface/     @shresth136 @kartikmishra210 @rootmnt
