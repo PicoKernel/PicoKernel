@@ -10,14 +10,6 @@
 
 Modules are the **features of the operating system**. They implement OS-level services and expose functionality to the Interface layer through stable APIs.
 
-
-In general, modules may handle:
-- system information services
-- logging and diagnostics
-- command routing logic
-- statistics and monitoring
-- protocol delegation (future)
-
 ---
 
 ## Our Implementation of Modules within PicoKernel
@@ -29,7 +21,6 @@ Because the hardware lacks:
 - kernel-user separation
 - virtual memory
 
-modules must be simpler in mechanism but stricter in discipline.
 
 All modules are:
 - statically compiled
@@ -45,17 +36,9 @@ No module is dynamically loaded, unloaded, or replaced at runtime.
 
 The Modules layer is responsible for:
 - implementing OS services
-- providing stable APIs to Interface layer
+- providing stable programs
 - performing bounded logical work
-- validating inputs and outputs
-- returning structured results
-
-Modules are not responsible for:
-- scheduling
-- memory management
-- hardware access
-- interrupts
-- system initialization
+- returning structured results for a called function
 
 ---
 
@@ -65,6 +48,8 @@ Modules are not responsible for:
 User (CLI)
    ↓
 Interface
+   ↓
+Kernel (API)
    ↓
 Modules
    ↓
@@ -85,8 +70,7 @@ Modules are invoked synchronously by the Interface layer or kernel routing logic
 
 Rules:
 - modules must return
-- modules must not block
-- modules must not sleep
+- modules must not block or sleep
 - modules must complete in bounded time
 
 Long-running work is delegated through protocol APIs (ESP32 integration (later part of the project)).
@@ -122,9 +106,7 @@ Registration is data-driven, not code-driven. This ensures:
 ## Future plans 
 ### Part 1: Development Plan(Starting soon...)
 
-Module development will proceed through small isolated projects before integration.
-
-Only Project 9 and onward will be committed to the main repository, these 9 projects will be under the PicoKernel/procrastinating-rats repository.
+Module development will proceed through the following small isolated projects before integration.
 
 #### Project 1 — Minimal Module Skeleton
 Establish module structure and API separation.
@@ -185,25 +167,5 @@ date
 webserver
 ```
 
-These modules contain logic/implementation only and do not access hardware directly.
-
----
-
-### Modules/code which should not be included within the modules folder
-
-The Modules Team will not implement:
-- scheduler
-- UART
-- GPIO
-- timers
-- interrupts
-- boot logic
-- kernel internals
-- ESP32 firmware
-- ...
-
-Any module requiring hardware access is invalid by design.
-
----
-
 This concludes our Team's current plans and goals, as we build and learn, we will keep this README updated! See ya!
+ 
