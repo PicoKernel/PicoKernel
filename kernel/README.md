@@ -1,6 +1,6 @@
 # Kernel Documentation
 
-#Team Members 
+# Team Members 
 
 - @rootmnt (Team Lead)
 - @kartikmishra210
