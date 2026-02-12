@@ -13,7 +13,7 @@ The Interfaces layer is designed to remain deliberately simple.
 
 Its role is not to control system behaviour, but to manage interaction with the user in a way that keeps the rest of the system insulated from human error.
 
-Our implementation focus on small, predictable CLI that operates within separate strict boundaries.
+Our implementation focuses on small, predictable CLI that operates within separate strict boundaries.
 All system decisions, execution logic, and state management remain outside the Interfaces layer.
 
 The interface receives user input, applies basic validation and structuring, and then hands control over to the kernel without further interpretation.
