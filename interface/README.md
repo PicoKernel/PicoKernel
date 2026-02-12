@@ -63,5 +63,3 @@ Integrate the interface with the kernel and verify that failures in the interfac
 --------------------------------------------------------
 
 As development progresses, this README will be updated to reflect architectural decisions and implementation details.
-
-
