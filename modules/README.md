@@ -1,143 +1,137 @@
-# Modules Documentation
+# Command Execution Units (CEU) Documentation
 
 ## Team Members
-- @Nikhil-771
-- @Amarworks
+
+- @Nikhil-771  
+- @Amarworks  
 
 ---
 
-## Definition of Modules
+## Definition
 
-Modules are the **features of the operating system**. They implement OS-level services and expose functionality to the Interface layer through stable APIs.
+In PicoKernel, a **Command Execution Unit (CEU)** is a statically compiled kernel component that implements the execution logic associated with a specific command.
 
----
-
-## Our Implementation of Modules within PicoKernel
-
-Since PicoKernel targets embedded hardware (RP2350 Pico 2W), the module model differs from traditional operating systems.
-
-Because the hardware lacks:
-- MMU
-- kernel-user separation
-- virtual memory
-
-
-All modules are:
-- statically compiled
-- always present
-- executed synchronously
-- bounded in execution time
-
-No module is dynamically loaded, unloaded, or replaced at runtime.
+Each command registered in the system maps to a corresponding CEU responsible for performing its operational logic under kernel control.
 
 ---
 
-## Module Responsibilities
+## Architectural Context
 
-The Modules layer is responsible for:
-- implementing OS services
-- providing stable programs
-- performing bounded logical work
-- returning structured results for a called function
-
----
-
-## Layer Model
-
-```
 User (CLI)
    ↓
-Interface
+Interface Layer
    ↓
-Kernel (API)
+Kernel Core (Routing)
    ↓
-Modules
+Command Execution Unit (CEU)
    ↓
-Kernel (APIs only)
-   ↓
-Drivers
+Driver / Protocol Subsystem
    ↓
 Hardware (RP2350 / ESP32)
-```
 
-The kernel enforces all layer boundaries.
-
----
-
-## Execution Model
-
-Modules are invoked synchronously by the Interface layer or kernel routing logic.
-
-Rules:
-- modules must return
-- modules must not block or sleep
-- modules must complete in bounded time
-
-Long-running work is delegated through protocol APIs (ESP32 integration (later part of the project)).
+CEUs executes within kernel space and are invoked through the kernel routing mechanism.
 
 ---
 
-## Module Structure
+## Embedded Design Characteristics
 
-Each module resides in its own directory under `modules/`:
+Since PicoKernel targets RP2350 (Pico 2W), all CEUs are:
 
-```
+- statically linked at compile time  
+- resident in memory at boot  
+- invoked synchronously  
+- required to complete within bounded time  
+
+---
+
+## CEU Responsibilities
+
+Each CEU:
+
+- implements the logic of a specific command  
+- performs bounded and deterministic execution  
+- processes validated input from the kernel  
+- interacts with lower subsystems through defined kernel interfaces  
+- returns structured results to the caller  
+
+---
+
+## Execution Flow
+
+When a command is issued:
+
+1. The Interface layer parses input.
+2. The Kernel resolves the command identifier.
+3. The mapped CEU is invoked.
+4. The CEU executes its logic.
+5. Results are returned through the kernel.
+
+---
+
+## Structure
+
+Each CEU resides in its own directory:
+
 modules/
-└── <module_name>/
-    ├── <module_name>.h
-    └── <module_name>.c
-```
+└── <ceu_name>/
+    ├── <ceu_name>.h
+    └── <ceu_name>.c
 
-The header defines the public API.  
+The header file defines the CEU interface.  
 The source file contains the implementation.
 
 ---
 
-## Module Registration
+## Registration Model
 
-Modules are registered at boot via a static registry table.
+CEUs are registered at boot through a compile-time registry table.
 
-Registration is data-driven, not code-driven. This ensures:
-- scalability
-- no kernel modification per module
-- predictable routing
-
----
-## Future plans 
-### Part 1: Development Plan(Starting soon...)
-
-Module development will proceed through the following small isolated projects before integration.
-
-#### Project 1 — Minimal Module Skeleton
-Establish module structure and API separation.
-
-#### Project 2 — Module Registration Model
-Implement data-based module registration.
-
-#### Project 3 — Kernel Interaction Discipline
-Enforce API-only kernel interaction.
-
-#### Project 4 — Bounded Execution
-Ensure modules cannot stall the system.
-
-#### Project 5 — Protocol Delegation
-Delegate heavy work via protocol APIs.
-
-#### Project 6 — Error Handling
-Standardize error reporting and logging.
-
-#### Project 7 — Secure Module Design
-Apply defensive programming rules.
-
-#### Project 8 — Transition to PicoKernel Modules
-Move from scaffolding to real OS modules.
+The registry maps command identifiers to CEU function pointers and enables deterministic routing.
 
 ---
 
-### Part 2: Module List(Tailored for PicoKernel integration...)
+## Future Plans  
 
-#### Phase 1 — Core OS Modules
-```
+### Part 1: Development Plan (Starting Soon...)
+
+CEU development will proceed through the following small, isolated projects before full PicoKernel integration.
+
+#### Project 1 – Minimal CEU Skeleton  
+
+Establish CEU structure with explicit input/output interfaces and strict execution boundaries.
+
+#### Project 2 – CEU Registration Model  
+
+Implement a compile-time command-to-CEU registry with deterministic routing.
+
+#### Project 3 – Kernel Interaction Discipline  
+
+Enforce kernel-API-only interaction and maintain architectural boundary integrity.
+
+#### Project 4 – Bounded Execution Enforcement  
+
+Implement execution guards to ensure CEUs complete within defined time constraints.
+
+#### Project 5 – Protocol Delegation Model  
+
+Design and implement controlled delegation of heavy operations through protocol interfaces.
+
+#### Project 6 – Structured Error Handling  
+
+Standardize CEU return types, result codes, and error propagation mechanisms.
+
+#### Project 7 – Defensive Modules Design  
+
+Apply strict input validation, fixed-buffer discipline, and secure coding practices.
+
+#### Project 8 – PicoKernel Modules Integration  
+
+Integrate validated CEUs into the PicoKernel routing core and driver subsystem.
+
+### Modules List(Part 2)
+
+#### Phase 1 – Core modules
+
 uptime
 sysinfo
 buildinfo
@@ -147,25 +141,18 @@ stats
 paniclog
 command_registry
 help
-```
 
-#### Phase 2 — Extended OS Modules
-```
+#### Phase 2 – Extended modules
+
 eventbus
 netproxy
 telemetry
-```
 
-#### Phase 3 — Network / Time Modules (ESP32-backed)
-```
+#### Phase 3 – ESP32-Backed modules(later on...)
+
 wifi
 bluetooth
 network
-ntp
 time
 date
 webserver
-```
-
-This concludes our Team's current plans and goals, as we build and learn, we will keep this README updated! See ya!
- 
