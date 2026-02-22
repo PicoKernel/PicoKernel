@@ -17,6 +17,7 @@ Each command registered in the system maps to a corresponding Module responsible
 
 ## Architectural Context
 
+'''
 User (CLI)
    ↓
 Interface Layer
@@ -28,6 +29,7 @@ Module
 Driver
    ↓
 Hardware (RP2350)
+'''
 
 Modules executes within kernel space and are invoked through the kernel routing mechanism.
 
