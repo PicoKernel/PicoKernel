@@ -90,11 +90,11 @@ Modules are registered at boot through a compile-time registry table.
 
 Module development will proceed through the following small, isolated projects before full PicoKernel integration.
 
-#### Project 1 – Minimal Module Skeleton  
+#### Project 1 – Minimal Modules Skeleton  
 
 Establish Module structure with explicit input/output interfaces and strict execution boundaries.
 
-#### Project 2 – Module Registration Model  
+#### Project 2 – Modules Registration Model  
 
 Implement a compile-time command-to-module registry with deterministic routing.
 
@@ -114,15 +114,15 @@ Design and implement controlled delegation of heavy operations through protocol 
 
 Standardize module return types, result codes, and error propagation mechanisms.
 
-#### Project 7 – Defensive module Design  
+#### Project 7 – Defensive modules Design  
 
 Apply strict input validation, fixed-buffer discipline, and secure coding practices.
 
-#### Project 8 – PicoKernel module Integration  
+#### Project 8 – PicoKernel modules Integration  
 
 Integrate validated modules into the PicoKernel routing core and driver subsystem.
 
-### Module List(Part 2)
+### Modules List(Part 2)
 
 #### Phase 1 – Core modules
 
@@ -142,7 +142,7 @@ eventbus
 netproxy
 telemetry
 
-#### Phase 3 – ESP32-Backed modules
+#### Phase 3 – ESP32-Backed modules(later on...)
 
 wifi
 bluetooth
