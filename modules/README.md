@@ -71,11 +71,12 @@ When a command is issued:
 ## Structure
 
 Each Module resides in its own directory:
-
+'''
 modules/
 └── <module_name>/
     ├── <module_name>.h
     └── <module_name>.c
+'''
 
 The header file defines the Module interface.  
 The source file contains the implementation.
