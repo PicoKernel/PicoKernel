@@ -17,7 +17,7 @@ Each command registered in the system maps to a corresponding Module responsible
 
 ## Architectural Context
 
-'''
+```
 User (CLI)
    ↓
 Interface Layer
@@ -29,7 +29,7 @@ Module
 Driver
    ↓
 Hardware (RP2350)
-'''
+```
 
 Modules executes within kernel space and are invoked through the kernel routing mechanism.
 
@@ -71,12 +71,12 @@ When a command is issued:
 ## Structure
 
 Each Module resides in its own directory:
-'''
+```
 modules/
 └── <module_name>/
     ├── <module_name>.h
     └── <module_name>.c
-'''
+```
 
 The header file defines the Module interface.  
 The source file contains the implementation.
