@@ -22,9 +22,11 @@ User (CLI)
    ↓
 Interface Layer
    ↓
-Kernel Core
+Kernel 
    ↓
 Module
+   ↓
+Kernel
    ↓
 Driver
    ↓
@@ -36,9 +38,7 @@ Modules executes within kernel space and are invoked through the kernel routing 
 ## Embedded Design Characteristics
 
 Since PicoKernel targets RP2350(Pico 2W), all Modules are:
-
-- statically linked at compile time  
-- resident in memory at boot  
+  
 - invoked synchronously  
 - required to complete within bounded time  
 
@@ -127,8 +127,6 @@ Integrate validated modules into the PicoKernel routing core and driver subsyste
 
 ### Modules List(Part 2)
 
-#### Phase 1 – Core modules
-
 uptime
 sysinfo
 buildinfo
@@ -136,21 +134,4 @@ version
 logging
 stats
 paniclog
-command_registry
 help
-
-#### Phase 2 – Extended modules
-
-eventbus
-netproxy
-telemetry
-
-#### Phase 3 – ESP32-Backed modules(later on...)
-
-wifi
-bluetooth
-network
-ntp
-time
-date
-webserver
