@@ -3,7 +3,7 @@
 # Team Members 
 
 - @rootmnt (Team Lead)
-- @kartikmishra210
+- @datenbar
 
 ## Definition of a Kernel
 
