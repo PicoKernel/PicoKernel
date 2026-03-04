@@ -63,17 +63,36 @@ We will be creating small projects before actually moving on to the kernel creat
 
 All the learning and how the ideas from the project will be implemented in our actual Operation System, this README will gradually be updated with documentation of different features and probably explanation of how things are coming together. 
 
-- Project 1 : Kernel Loop
+## Project 1 : Kernel Loop
 
-	We will be creating a kernel loop that will run indefinitely which will be our base for running the kernel indefinitely.
+**Objective:** Establish kernel ownership of execution.
 
-- Project 2 : Command Routing
+**Implementation:** Implemented an infinite execution loop to ensure continuous system operation without normal termination.
 
-	We will create a routing program that will route commands to correct modules, we will ensure that this remains scalable for many commands.
+**Execution Model:** Runtime control is centralized within the kernel.
 
-- Project 3 : Global System State
+**Outcome:** Defined the foundational execution structure for an embedded operating system.
 
-	We will create a Global System State owned by the kernel having different information variables like uptime, number_of_commands etc.
+
+## Project 2 : Command Routing
+
+**Objective:** Eliminate hardcoded control flow using data-driven routing.
+
+**Implementation:** Implemented a table-driven routing mechanism that maps commands to their corresponding handlers using function pointers.
+
+**Execution Model:** Command resolution is performed dynamically through a centralized command mapping rather than conditional branching.
+
+**Outcome:** Established a modular and extensible command routing system that allows new commands to be added without modifying core kernel logic.
+
+## Project 3 : Global System State
+
+**Objective:** Centralize ownership of system-level state within the kernel.
+
+**Implementation:** Defined a unified state structure to maintain core system information such as uptime and executed command count, with controlled access through dedicated functions.
+
+**Execution Model:** System state is owned by a single kernel module and is not directly mutable by other components.
+
+**Outcome:** Centralized state ownership and enforced controlled access to prevent direct modification.
 
 - Project 4 : Cooperative Scheduler
 
