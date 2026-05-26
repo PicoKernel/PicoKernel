@@ -3,13 +3,15 @@
  * @brief Provides kernel interface for various timer functions.
  *
  * @details
- * It depends on timer driver and offers timer functions to other parts of the OS through the kernel.
- * This keeps the time control centralized and in the hands of the kernel. 
- * Every other module must inquire about time through the kernel.
+ * It depends on timer driver and offers timer functions to other parts of the
+ * OS through the kernel. This keeps the time control centralized and in the
+ * hands of the kernel. Every other module must inquire about time through the
+ * kernel.
  *
  * Constraints:
  * - Non-blocking API, Only queries
- * - Relies on the hardware timer on RP2350. So resolution and accuracy are hardware dependent.
+ * - Relies on the hardware timer on RP2350. So resolution and accuracy are
+ * hardware dependent.
  * - Time values may wrap around for uint32_t.
  *
  * Security:
@@ -22,12 +24,13 @@
  * @date 25-04-2026
  * @copyright Copyright (c) 2026 PicoKernel Project.
  *            Licensed under the MIT License.
-*/
+ */
 
 #ifndef KERNEL_TIME_H
 #define KERNEL_TIME_H
 
-#include<stdint.h>
+#include <stdbool.h>
+#include <stdint.h>
 
 /**
  * @brief Initializes the subsystem. Must be called before any other
@@ -39,7 +42,7 @@
  *          undefined behavior.
  *
  * @return Nothing.
-*/
+ */
 void kernel_time_init(void);
 
 /**
@@ -49,7 +52,7 @@ void kernel_time_init(void);
  *         Wraps around in ~49 days.
  *
  * @note uint32_t wraps around in ~49 days.
-*/
+ */
 uint32_t kernel_uptime_ms(void);
 
 /**
@@ -57,7 +60,7 @@ uint32_t kernel_uptime_ms(void);
  *
  * @return uint64_t time elapsed since last boot.
  *
-*/
+ */
 uint64_t kernel_uptime_us(void);
 
 /**
@@ -72,7 +75,7 @@ uint64_t kernel_uptime_us(void);
  * - Uses unsigned subtraction to handle timer overflow safely
  * - timestamp must originate from kernel_uptime_ms()
  * - Caller must ensure timestamp is not user controlled.
-*/
+ */
 bool kernel_time_elapsed(uint32_t timestamp, uint32_t duration_ms);
 
 #endif

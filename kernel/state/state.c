@@ -3,7 +3,8 @@
  * @brief Implementation of kernel state subsystem.
  *
  * @details
- * Maintains internal kernel state and provides controlled updates to runtime metrics.
+ * Maintains internal kernel state and provides controlled updates to runtime
+ * metrics.
  *
  * Design notes:
  * - State is statically allocated, no dynamic memory usage.
@@ -20,37 +21,34 @@
  * @copyright Copyright (c) 2026 PicoKernel Project.
  *            Licensed under the MIT License.
  */
-#include <state.h>
-#include <time.h>
+#include "state.h"
+#include "../time/time.h"
 
 /**
  * Internal kernel state.
  *
- * Statically allocated and confined to this file to prevent external modification.
+ * Statically allocated and confined to this file to prevent external
+ * modification.
  */
-static kernel_state_t state;
-
+static kernel_state_t state = {
+    .uptime_ms = 0,
+    .commands_executed = 0,
+};
 /**
  * Returns the current kernel state.
  *
  * Exposes internal state as read-only.
  */
-const kernel_state_t *kernel_get_state(void){
-    return &state;
-}
+const kernel_state_t *kernel_get_state(void) { return &state; }
 
 /**
  * Updates kernel uptime.
  *
  * Value is obtained from the kernel time subsystem.
  */
-void kernel_state_uptime(void){
-    state.uptime_ms = kernel_uptime_ms();
-}
+void kernel_state_uptime(void) { state.uptime_ms = kernel_uptime_ms(); }
 
 /**
  * Records a command execution event.
  */
-void kernel_state_record_command(void){
-    state.commands_executed++;
-}
+void kernel_state_record_command(void) { state.commands_executed++; }
