@@ -1,11 +1,11 @@
-# Kernel (architecture owners)
+# Kernel
 /kernel/        @datenbar @rootmnt
 
 # Drivers
 /drivers/       @krishna-stone @datenbar @rootmnt
 
 # Modules
-/modules/       @Nikhil-771 @datenbar @rootmnt
+/modules/       @Amarcode @datenbar @rootmnt
 
 # Interfaces
 /interface/     @shresth136 @datenbar @rootmnt
