@@ -24,31 +24,30 @@
  *            Licensed under the MIT License.
  *
  * @todo Time Sync from different sources to be implemented .
-*/
+ */
 
-#include"time.h"
-#include"../../drivers/hw_timer/hw_timer.h"
-#include<stdbool.h>
+#include "time.h"
+#include "../../drivers/hw_timer/hw_timer.h"
+#include <stdbool.h>
+
+/**
+ * Initializes the kernel time drivers.
+ */
+void kernel_time_init(void) { timer_driver_init(); }
 
 /**
  * Returns system uptime in milliseconds.
  *
  * Direct wrapper over timer driver.
-*/
-uint32_t kernel_uptime_ms(void) {
-    return timer_driver_now_ms();
-}
-
+ */
+uint32_t kernel_uptime_ms(void) { return timer_driver_now_ms(); }
 
 /**
  * Returns system uptime in microseconds.
  *
  * Direct wrapper over timer driver.
-*/
-uint64_t kernel_uptime_us(void) {
-    return timer_driver_now_us();
-}
-
+ */
+uint64_t kernel_uptime_us(void) { return timer_driver_now_us(); }
 
 /**
  * Checks if a duration has elapsed since a given timestamp.
@@ -58,7 +57,7 @@ uint64_t kernel_uptime_us(void) {
  *
  * @note
  * - timestamp must originate from kernel_uptime_ms()
-*/
+ */
 bool kernel_time_elapsed(uint32_t timestamp, uint32_t duration_ms) {
-    return (kernel_uptime_ms() - timestamp) >= duration_ms;
+  return (kernel_uptime_ms() - timestamp) >= duration_ms;
 }
