@@ -4,9 +4,11 @@
 
 /**
  * @file panic.h
- *
+ * @author rootmnt
+ * @date 26-04-2026
  * @brief Provides a kernel panic service.
- * @date 25-04-2026
+ * @ingroup kernel
+ * @version 0.1.0
  *
  * @details
  * Provides a single function to handle serious errors.
@@ -22,10 +24,6 @@
  *
  * Security:
  * - Caller is responsible for pointer validation.
- *
- * @ingroup kernel
- * @author rootmnt
- * @version 0.1.0
  */
 
 #ifndef PANIC_H

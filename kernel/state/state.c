@@ -4,9 +4,11 @@
 
 /**
  * @file state.c
- *
- * @brief Implementation of kernel state subsystem.
+ * @author rootmnt
  * @date 28-04-2026
+ * @brief Implementation of kernel state subsystem.
+ * @ingroup kernel
+ * @version 0.1.0
  *
  * @details
  * Maintains internal kernel state and provides controlled updates to runtime
@@ -19,10 +21,6 @@
  *
  * Known limitations:
  * - No concurrency protection (assumes single-core, no preemption).
- *
- * @ingroup kernel
- * @author rootmnt
- * @version 0.1.0
  */
 
 #include "state.h"

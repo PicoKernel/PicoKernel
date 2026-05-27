@@ -4,9 +4,11 @@
 
 /**
  * @file time.h
- *
- * @brief Provides kernel interface for various timer functions.
+ * @author datenbar
  * @date 25-04-2026
+ * @brief Provides kernel interface for various timer functions.
+ * @ingroup kernel
+ * @version 0.1.0
  *
  * @details
  * It depends on timer driver and offers timer functions to other parts of the
@@ -23,10 +25,6 @@
  * Security:
  * - Must not be used for security-sensitive applications.
  * - Time values must not be used to make critical decisions without validation.
- *
- * @ingroup kernel
- * @author datenbar
- * @version 0.1.0
  */
 
 #ifndef KERNEL_TIME_H

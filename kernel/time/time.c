@@ -4,9 +4,11 @@
 
 /**
  * @file time.c
- *
- * @brief Implementation of kernel time subsystem.
+ * @author rootmnt
  * @date 26-04-2026
+ * @brief Implementation of kernel time subsystem.
+ * @ingroup kernel
+ * @version 0.1.0
  *
  * @details
  * Provides a thin abstraction over the hardware timer driver.
@@ -22,11 +24,7 @@
  * - No time synchronization (pure monotonic source)
  * - No protection against misuse of timestamps from other sources
  *
- * @ingroup kernel
- * @author datenbar
- * @version 0.1.0
- *
- * @todo Time Sync from different sources to be implemented .
+ * @todo Time Sync from different sources to be implemented.
  */
 
 #include "time.h"

@@ -4,9 +4,11 @@
 
 /**
  * @file panic.c
- *
- * @brief Implementation of the kernel panic handler.
+ * @author rootmnt
  * @date 26-04-2026
+ * @brief Implementation of the kernel panic handler.
+ * @ingroup kernel
+ * @version 0.1.0
  *
  * @details
  * Provides the implementation of kernel panic service, which handles
@@ -14,10 +16,6 @@
  *
  * @warning
  * - Interrupts are globally disabled.
- *
- * @ingroup kernel
- * @author rootmnt
- * @version 0.1.0
  */
 
 #include "panic.h"
