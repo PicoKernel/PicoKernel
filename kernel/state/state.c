@@ -1,6 +1,12 @@
+/* SPDX-License-Identifier: MIT
+ * Copyright (c) 2025-2026 PicoKernel Project
+ */
+
 /**
  * @file state.c
+ *
  * @brief Implementation of kernel state subsystem.
+ * @date 28-04-2026
  *
  * @details
  * Maintains internal kernel state and provides controlled updates to runtime
@@ -17,10 +23,8 @@
  * @ingroup kernel
  * @author rootmnt
  * @version 0.1.0
- * @date 28-04-2026
- * @copyright Copyright (c) 2026 PicoKernel Project.
- *            Licensed under the MIT License.
  */
+
 #include "state.h"
 #include "../time/time.h"
 

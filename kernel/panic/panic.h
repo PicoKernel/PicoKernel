@@ -1,7 +1,12 @@
+/* SPDX-License-Identifier: MIT
+ * Copyright (c) 2025-2026 PicoKernel Project
+ */
+
 /**
  * @file panic.h
  *
  * @brief Provides a kernel panic service.
+ * @date 25-04-2026
  *
  * @details
  * Provides a single function to handle serious errors.
@@ -21,10 +26,8 @@
  * @ingroup kernel
  * @author rootmnt
  * @version 0.1.0
- * @date 25-04-2026
- * @copyright Copyright (c) 2026 Picokernel Project.
- *            Licensed under the MIT License.
  */
+
 #ifndef PANIC_H
 #define PANIC_H
 

@@ -1,7 +1,12 @@
+/* SPDX-License-Identifier: MIT
+ * Copyright (c) 2025-2026 PicoKernel Project
+ */
+
 /**
  * @file state.h
  *
  * @brief Provides kernel runtime state management.
+ * @date 28-04-2026
  *
  * @details
  * Defines the structure and APIs used by the kernel to track system-level
@@ -18,10 +23,8 @@
  * @ingroup kernel
  * @author rootmnt
  * @version 0.1.0
- * @date 28-04-2026
- * @copyright Copyright (c) 2026 PicoKernel Project.
- *            Licensed under the MIT License.
  */
+
 #ifndef STATE_H
 #define STATE_H
 #include <stdbool.h>

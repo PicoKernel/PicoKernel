@@ -1,6 +1,12 @@
+/* SPDX-License-Identifier: MIT
+ * Copyright (c) 2025-2026 PicoKernel Project
+ */
+
 /**
  * @file time.h
+ *
  * @brief Provides kernel interface for various timer functions.
+ * @date 25-04-2026
  *
  * @details
  * It depends on timer driver and offers timer functions to other parts of the
@@ -21,9 +27,6 @@
  * @ingroup kernel
  * @author datenbar
  * @version 0.1.0
- * @date 25-04-2026
- * @copyright Copyright (c) 2026 PicoKernel Project.
- *            Licensed under the MIT License.
  */
 
 #ifndef KERNEL_TIME_H

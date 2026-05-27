@@ -1,6 +1,12 @@
+/* SPDX-License-Identifier: MIT
+ * Copyright (c) 2025-2026 PicoKernel Project
+ */
+
 /**
  * @file time.c
+ *
  * @brief Implementation of kernel time subsystem.
+ * @date 26-04-2026
  *
  * @details
  * Provides a thin abstraction over the hardware timer driver.
@@ -19,9 +25,6 @@
  * @ingroup kernel
  * @author datenbar
  * @version 0.1.0
- * @date 26-04-2026
- * @copyright Copyright (c) 2025 PicoKernel Project.
- *            Licensed under the MIT License.
  *
  * @todo Time Sync from different sources to be implemented .
  */
