@@ -1,7 +1,14 @@
+/* SPDX-License-Identifier: MIT
+ * Copyright (c) 2025-2026 PicoKernel Project
+ */
+
 /**
  * @file panic.c
- *
+ * @author rootmnt
+ * @date 26-04-2026
  * @brief Implementation of the kernel panic handler.
+ * @ingroup kernel
+ * @version 0.1.0
  *
  * @details
  * Provides the implementation of kernel panic service, which handles
@@ -9,15 +16,8 @@
  *
  * @warning
  * - Interrupts are globally disabled.
- *
- * @ingroup kernel
- * @author rootmnt
- * @version 0.1.0
- * @date 2026-04-26
- * @copyright Copyright (c) 2026 Picokernel Project.
- *            Licensed under the MIT License.
- *
  */
+
 #include "panic.h"
 #include "pico/stdlib.h"
 #include <stdio.h>

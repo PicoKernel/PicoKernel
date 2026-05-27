@@ -1,6 +1,14 @@
+/* SPDX-License-Identifier: MIT
+ * Copyright (c) 2025-2026 PicoKernel Project
+ */
+
 /**
  * @file time.h
+ * @author datenbar
+ * @date 25-04-2026
  * @brief Provides kernel interface for various timer functions.
+ * @ingroup kernel
+ * @version 0.1.0
  *
  * @details
  * It depends on timer driver and offers timer functions to other parts of the
@@ -17,13 +25,6 @@
  * Security:
  * - Must not be used for security-sensitive applications.
  * - Time values must not be used to make critical decisions without validation.
- *
- * @ingroup kernel
- * @author datenbar
- * @version 0.1.0
- * @date 25-04-2026
- * @copyright Copyright (c) 2026 PicoKernel Project.
- *            Licensed under the MIT License.
  */
 
 #ifndef KERNEL_TIME_H
