@@ -19,12 +19,12 @@
  *
  */
 
+#include "hw_timer.h"
 #include "pico/stdlib.h"
 #include "pico/time.h"
-#include "timer.h"
 #include <stdint.h>
 
-void driver_time_init(void) {
+void timer_driver_init(void) {
   /**
    * @todo Implement later
    *
@@ -36,7 +36,7 @@ void driver_time_init(void) {
  *
  * Direct wrapper over pico-sdk's timer API.
  */
-uint32_t driver_uptime_ms(void) {
+uint32_t timer_driver_now_ms(void) {
   return to_ms_since_boot(get_absolute_time());
 }
 
@@ -45,6 +45,6 @@ uint32_t driver_uptime_ms(void) {
  *
  * Direct wrapper over pico-sdk's timer API.
  */
-uint64_t driver_uptime_us(void) {
+uint64_t timer_driver_now_us(void) {
   return to_us_since_boot(get_absolute_time());
 }
