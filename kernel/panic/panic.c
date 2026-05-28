@@ -19,11 +19,12 @@
  */
 
 #include "panic.h"
+#include "hardware/sync.h"
 #include "pico/stdlib.h"
 #include <stdio.h>
 
 noreturn void kernel_panic(const char *reason) {
-  __disable_irq();
+  save_and_disable_interrupts();
   if (reason == NULL)
     printf("KERNEL PANIC: (no reason passed)\n");
   else
