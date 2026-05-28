@@ -47,7 +47,7 @@ void timer_driver_init(void);
  *
  * @return uint32_t time elapsed from timer in miliseconds.
  */
-uint32_t timer_driver_now_ms();
+uint32_t timer_driver_now_ms(void);
 
 /**
  * @brief Gives the time elapsed in us since boot from hardware timer.
