@@ -8,7 +8,7 @@
  * @date 29-05-2026
  * @brief Provides memory allocations from a static pool upon request.
  * @ingroup kernel
- * @version 0.1.0
+ * @version 0.1.1
  *
  * @details
  * A simple memory allocator owns the static pool of memory when system boots
@@ -30,8 +30,6 @@
  * @todo Implement double-free detection.
  * @todo Implement calloc & realloc.
  * @todo Implement automatic HEAP_SIZE calibration.
- * @todo Remove is_free from header and use the lowest bit of size to save
- * memory.
  * @todo Implement backward coalescing in kfree().
  */
 

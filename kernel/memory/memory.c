@@ -8,7 +8,7 @@
  * @date 30-05-2026
  * @brief Implementation of memory allocator.
  * @ingroup kernel
- * @version 0.1.0
+ * @version 0.1.1
  *
  * @details
  * Implements a simple free-list allocator which owns a chunk of memory and
@@ -28,8 +28,6 @@
  * @todo Implement double-free detection.
  * @todo Implement calloc & realloc.
  * @todo Implement automatic HEAP_SIZE calibration.
- * @todo Remove is_free from header and use the lowest bit of size to save
- * memory.
  * @todo Implement backward coalescing in kfree().
  */
 
@@ -38,8 +36,13 @@
 #include <stdint.h>
 #include <stdio.h>
 
+#define BLOCK_SIZE(b)     ((b)->size & ~1UL) /** Extracts size from current header size. */
+#define BLOCK_IS_FREE(b)  ((b)->size & 1) /** Extracts is_free status from header. */
+#define BLOCK_SET_FREE(b) ((b)->size |= 1) /** Sets the is_free bit to 1. */
+#define BLOCK_SET_USED(b) ((b)->size &= ~1UL) /** Sets the is_free bit to 0. */
+#define BLOCK_SET_SIZE(b, s) ((b)->size = ((s) & ~1UL) | ((b)->size & 1)) /** Sets block size in header while preserving the is_free flag. */ 
 #define ALIGNMENT 8 /** Byte alignment boundary for all allocations. */
-#define CANARY 0xDEADFACE /** Magic value written at the end of each allocated payload to detect heap overflow. */
+#define CANARY 0xDEADFACEDEADFACEULL /** Magic value written at the end of each allocated payload to detect heap overflow. */
 #define HEAP_SIZE (300 * 1024) /** Total heap size in bytes. */
 
 /**
@@ -49,8 +52,7 @@
  * Managed exclusively by the allocator.
  */
 typedef struct block_header {
-  size_t size;              /**< Payload size in bytes, excluding header and canary. */
-  uint8_t is_free : 1;     /**< 1 if block is free, 0 if allocated. */
+  size_t size;              /**< Payload size in bytes, excluding header and canary, last bit stolen for is_free. */
   struct block_header *next; /**< Pointer to the next block in the heap list. */
 } block_header_t;
 
@@ -82,8 +84,8 @@ static inline size_t align(size_t size) {
  */
 void allocator_init(void) {
   heap_head = (block_header_t *)heap;
-  heap_head->size = HEAP_SIZE - sizeof(block_header_t);
-  heap_head->is_free = 1;
+  BLOCK_SET_SIZE(heap_head, HEAP_SIZE - sizeof(block_header_t) - sizeof(uint64_t));
+  BLOCK_SET_FREE(heap_head);
   heap_head->next = NULL;
 }
 
@@ -109,27 +111,28 @@ void *kalloc(size_t size) {
   size = align(size);
   block_header_t *current = heap_head;
   while (current != NULL) {
-    if (current->is_free && current->size >= size) {
-      if (current->size == size) {
-        current->is_free = 0;
-        uint32_t *canary = (uint32_t *)((uint8_t *)(current + 1) + size);
+    if (BLOCK_IS_FREE(current) && BLOCK_SIZE(current) >= size) {
+      if (BLOCK_SIZE(current) == size) {
+        BLOCK_SET_USED(current);
+        uint64_t *canary = (uint64_t *)((uint8_t *)(current + 1) + size);
         *canary = CANARY;
         return (void *)(current + 1);
       }
-      if (current->size > size + sizeof(block_header_t) + ALIGNMENT) {
-        current->is_free = 0;
-        uint32_t *canary = (uint32_t *)((uint8_t *)(current + 1) + size);
+      if (BLOCK_SIZE(current) > size + sizeof(block_header_t) + ALIGNMENT) {
+        BLOCK_SET_USED(current);
+        uint64_t *canary = (uint64_t *)((uint8_t *)(current + 1) + size);
         *canary = CANARY;
         block_header_t *new_block = (block_header_t *)(canary + 1);
-        new_block->is_free = 1;
-        new_block->size = current->size - size - sizeof(block_header_t) - sizeof(uint32_t);
+        BLOCK_SET_FREE(new_block);
+        BLOCK_SET_SIZE(new_block, BLOCK_SIZE(current) - size - sizeof(block_header_t) - sizeof(uint64_t));
         new_block->next = current->next;
         current->next = new_block;
-        current->size = size;
+        BLOCK_SET_SIZE(current, size);
         return (void *)(current + 1);
       }
-      uint32_t *canary = (uint32_t *)((uint8_t *)(current + 1) + size);
+      uint64_t *canary = (uint64_t *)((uint8_t *)(current + 1) + size);
       *canary = CANARY;
+      BLOCK_SET_USED(current);
       return (void *)(current + 1);
     }
     current = current->next;
@@ -160,13 +163,13 @@ void kfree(void *ptr) {
   if (ptr == NULL)
     return;
   block_header_t *header = (block_header_t *)ptr - 1;
-  uint32_t *canary = (uint32_t *)((uint8_t *)ptr + header->size);
+  uint64_t *canary = (uint64_t *)((uint8_t *)ptr + BLOCK_SIZE(header));
   if (*canary != CANARY) {
     kernel_panic("Allocator: Heap corruption detected!");
   }
-  header->is_free = 1;
-  if (header->next != NULL && header->next->is_free) {
-    header->size = header->size + sizeof(uint32_t) + sizeof(block_header_t) + header->next->size;
+  BLOCK_SET_FREE(header);
+  while (header->next !=NULL && BLOCK_IS_FREE(header->next)){
+    BLOCK_SET_SIZE(header, BLOCK_SIZE(header) + sizeof(uint64_t) + sizeof(block_header_t) + BLOCK_SIZE(header->next));
     header->next = header->next->next;
   }
 }
@@ -192,15 +195,15 @@ void kdump(void) {
   size_t used_bytes = 0;
   printf("[KDUMP] heap @ %p | total: %zu bytes \n", current, (size_t)HEAP_SIZE);
   while (current != NULL) {
-    uint32_t canary_val = current->is_free ? 0 : *(uint32_t *)((uint8_t *)(current + 1) + current->size);
-    printf("[KDUMP] block %d | addr %p | size: %zu B | %s | canary: %s \n", total_blocks, current, current->size, current->is_free ? "free" : "used", current->is_free ? "N/A" : (canary_val == CANARY) ? "OK" : "CORRUPTED");
+    uint64_t canary_val = BLOCK_IS_FREE(current) ? 0 : *(uint64_t *)((uint8_t *)(current + 1) + BLOCK_SIZE(current));
+    printf("[KDUMP] block %d | addr %p | size: %zu B | %s | canary: %s \n", total_blocks, current, BLOCK_SIZE(current), BLOCK_IS_FREE(current) ? "free" : "used", BLOCK_IS_FREE(current) ? "N/A" : (canary_val == CANARY) ? "OK" : "CORRUPTED");
     total_blocks++;
-    current->is_free ? free_blocks++ : used_blocks++;
-    if (!current->is_free)
-    used_bytes += current->size;
+    BLOCK_IS_FREE(current) ? free_blocks++ : used_blocks++;
+    if (!BLOCK_IS_FREE(current))
+    used_bytes += BLOCK_SIZE(current);
     current = current->next;
   }
-  size_t overhead = (size_t)(total_blocks * (sizeof(block_header_t) + sizeof(uint32_t)));
+  size_t overhead = (size_t)(total_blocks * (sizeof(block_header_t) + sizeof(uint64_t)));
   printf("[KDUMP] total_blocks: %d | used: %d | free: %d \n", total_blocks, used_blocks, free_blocks);
   printf("[KDUMP] payload used: %zu B | overhead: %zu B | total: %zu B | heap: %zu B \n", used_bytes, overhead, used_bytes + overhead, (size_t)HEAP_SIZE);
 }
