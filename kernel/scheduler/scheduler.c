@@ -88,7 +88,7 @@ static int needs_compact = 0;
 void scheduler_init(size_t size) {
   tasks = kalloc(sizeof(task_t) * size);
   if (tasks == NULL) {
-    kernel_panic("scheduler: Failed to allocate task array\n");
+    kernel_panic("scheduler: Failed to allocate task array");
   }
   task_limit = size;
   task_count = 0;
@@ -102,9 +102,8 @@ void scheduler_init(size_t size) {
  * provided task entry function. New tasks are placed
  * in TASK_READY state and assigned a unique task ID.
  *
- * Returns without registering the task if the scheduler
- * is uninitialized, the task entry is NULL, or the task
- * table is at capacity.
+ * Panics if the scheduler is unintialized and returns without registering the
+ * task if the task name/entry is NULL, or the task table is at capacity.
  *
  * @note Task IDs are never reused, even after task
  *       removal through compaction.
@@ -114,7 +113,10 @@ void scheduler_init(size_t size) {
  */
 void scheduler_register(const char *name, task_fn_t task) {
   if (tasks == NULL) {
-    printf("scheduler: Not initialized\n");
+    kernel_panic("scheduler: scheduler_register() called before scheduler_init()");
+  }
+  if (name == NULL) {
+    printf("scheduler: Cannot register task with NULL name\n");
     return;
   }
   if (task == NULL) {
@@ -149,13 +151,19 @@ void scheduler_register(const char *name, task_fn_t task) {
  *
  * @note Yielded tasks currently behave the same as successfully completed
  *       iterations.
+ *
+ * @note task_count is snapshotted at the start of the execution loop.
+ *       Tasks registered mid-cycle by a running task are deferred to the next
+ *       scheduler cycle.
  */
 void scheduler_run_once(void) {
   if (tasks == NULL || task_count == 0) {
     return;
   }
 
-  for (size_t i = 0; i < task_count; i++) {
+  const size_t cycle_task_count = task_count;
+
+  for (size_t i = 0; i < cycle_task_count; i++) {
     task_t *task = &tasks[i];
 
     if (task->state != TASK_READY)
