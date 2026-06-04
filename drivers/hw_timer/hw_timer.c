@@ -24,10 +24,6 @@
 #include <stdint.h>
 
 void timer_driver_init(void) {
-  /**
-   * @todo Implement later
-   *
-   */
 }
 
 /**

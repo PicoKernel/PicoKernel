@@ -1,0 +1,36 @@
+name: "TODO"
+description: "Auto-generated from @todo Doxygen annotation"
+labels: ["todo"]
+body:
+  - type: markdown
+    attributes:
+      value: |
+        > This issue was opened automatically from a `@todo` annotation in the source.
+        > Do **not** edit the fingerprint comment — it prevents duplicate issues.
+
+  - type: input
+    id: location
+    attributes:
+      label: "Source Location"
+      description: "File and line number where the @todo lives"
+      placeholder: "src/memory.c:42"
+    validations:
+      required: true
+
+  - type: textarea
+    id: task
+    attributes:
+      label: "Task"
+      description: "The full @todo description"
+    validations:
+      required: true
+
+  - type: checkboxes
+    id: checklist
+    attributes:
+      label: "Checklist"
+      options:
+        - label: "Implementation complete"
+        - label: "Tests written and passing"
+        - label: "Doxygen annotation removed from source"
+        - label: "PR linked to this issue"

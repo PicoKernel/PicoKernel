@@ -1,0 +1,139 @@
+name: "Sync @todo → Issues"
+
+on:
+  push:
+    branches: [main]
+    paths:
+      - "**/*.c"
+      - "**/*.h"
+  workflow_dispatch:
+
+jobs:
+  sync-todos:
+    runs-on: codeberg-small-lazy
+    permissions:
+      issues: write
+      contents: read
+
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v4
+
+      - name: Set up Python
+        uses: actions/setup-python@v5
+        with:
+          python-version: "3.x"
+
+      - name: Parse @todos
+        run: python3 scripts/parse_todos.py . > /tmp/todos.json
+
+      - name: Open issues for new TODOs
+        env:
+          FORGEJO_URL: ${{ github.server_url }}
+          REPO: ${{ github.repository }}
+          TOKEN: ${{ secrets.ISSUE_TOKEN }}
+        run: |
+          python3 - <<'EOF'
+          import json, os, urllib.request, time
+
+          base  = os.environ["FORGEJO_URL"].rstrip("/")
+          repo  = os.environ["REPO"]
+          token = os.environ["TOKEN"]
+          owner, reponame = repo.split("/", 1)
+          MAX_NEW_ISSUES = 5
+
+          headers = {
+              "Content-Type":  "application/json",
+              "Authorization": f"token {token}",
+          }
+
+          def api(method, path, body=None):
+              url  = f"{base}/api/v1{path}"
+              data = json.dumps(body).encode() if body else None
+              req  = urllib.request.Request(url, data=data, headers=headers, method=method)
+              try:
+               with urllib.request.urlopen(req) as r:
+                  return json.loads(r.read())
+              except urllib.error.HTTPError as e:
+                  if e.code in (429, 502, 503, 504):
+                      print(f"Temporary Forgejo error ({e.code}), stopping sync.")
+                      sys.exit(0)
+
+                  print("API ERROR")
+                  print("URL:", url)
+                  print("CODE:", e.code)
+                  print(e.read().decode())
+                  raise
+
+          # Collect fingerprints from existing open todo issues
+          existing_fps = set()
+          page = 1
+          while True:
+              issues = api("GET", f"/repos/{owner}/{reponame}/issues"
+                           f"?type=issues&state=open&labels=todo&limit=50&page={page}")
+              if not issues:
+                  break
+              for iss in issues:
+                  for line in iss.get("body", "").splitlines():
+                      if line.startswith("<!-- todo-fingerprint:"):
+                          fp = line.split(":")[1].strip().rstrip(" -->")
+                          existing_fps.add(fp)
+              page += 1
+
+          # Get repository labels and their IDs
+          label_map = {
+              label["name"]: label["id"]
+              for label in api(
+                  "GET",
+                  f"/repos/{owner}/{reponame}/labels"
+              )
+          }
+          print("LABELS:", label_map)
+
+          def ensure_label(name):
+              try:
+                  api("POST", f"/repos/{owner}/{reponame}/labels",
+                      {"name": name, "color": "#e6e6e6"})
+              except:
+                  pass  # already exists
+
+          todos   = json.load(open("/tmp/todos.json"))
+          created = 0
+
+          for t in todos:
+              fp = t["fingerprint"]
+              if fp in existing_fps:
+                  print(f"  skip [{fp}] {t['description'][:60]}")
+                  continue
+
+              label_ids = []
+              for label in ["Todo"] + t["tags"]:
+                  if label not in label_map:
+                      raise RuntimeError(
+                          f"Missing label '{label}' in repository"
+                      )
+                  label_ids.append(label_map[label])
+
+              api("POST", f"/repos/{owner}/{reponame}/issues", {
+                  "title":  f"[TODO] {t['description'][:72]}",
+                  "body": (
+                      f"<!-- todo-fingerprint: {fp} -->\n\n"
+                      f"**Source Location:** `{t['file']}:{t['line']}`\n\n"
+                      f"**Task:**\n{t['description']}\n\n"
+                      f"---\n"
+                      f"**Checklist**\n"
+                      f"- [ ] Implementation complete\n"
+                      f"- [ ] Tests written and passing\n"
+                      f"- [ ] Doxygen `@todo` removed from source\n"
+                      f"- [ ] PR linked to this issue\n"
+                  ),
+                  "labels": label_ids,
+              })
+              print(f"  open [{fp}] {t['description'][:60]}")
+              created += 1
+              if created >= MAX_NEW_ISSUES:
+                  print(f"Reached limit of {MAX_NEW_ISSUES} new issues.")
+                  break
+
+          print(f"\nDone — {created} new, {len(todos)-created} already tracked.")
+          EOF
