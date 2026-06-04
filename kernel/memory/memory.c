@@ -8,7 +8,6 @@
  * @date 30-05-2026
  * @brief Implementation of memory allocator.
  * @ingroup kernel
- * @version 0.1.1
  *
  * @details
  * Implements a simple free-list allocator which owns a chunk of memory and
@@ -24,11 +23,14 @@
  * - Uses a canary and header so extra space is needed.
  * - Aligns the requested memory block so some bytes may go wasted.
  * - Doesn't coalesce backward(yet), may cause fragmentation.
+ * - Race conditions may occur if allocator operations are interrupted. Currently not an issue as
+ *   the scheduler is cooperative and only one task executes at a time.
  *
- * @todo Implement double-free detection.
- * @todo Implement calloc & realloc.
- * @todo Implement automatic HEAP_SIZE calibration.
- * @todo Implement backward coalescing in kfree().
+ * @todo [Kernel] [Enhancement] Implement calloc & realloc.
+ * @todo [Kernel] [Enhancement] Implement automatic HEAP_SIZE calibration.
+ * @todo [Kernel] [Perf] Implement backward coalescing in kfree().
+ * @todo [Kernel] [Enhancement] Implement magic value to check header integrity and double-free and bad pointer.
+ * @todo [Kernel] [Enhancement] Implement MPU regions for heap after allocator_init and mark kernel as privileged.
  */
 
 #include "memory.h"
@@ -208,3 +210,4 @@ void kdump(void) {
   printf("[KDUMP] payload used: %zu B | overhead: %zu B | total: %zu B | heap: %zu B \n", used_bytes, overhead, used_bytes + overhead, (size_t)HEAP_SIZE);
 }
 #endif
+

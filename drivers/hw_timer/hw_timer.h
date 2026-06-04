@@ -8,7 +8,6 @@
  * @date 27-05-2026
  * @brief Provides abstraction layer over the pico-sdk hardware timer API.
  * @ingroup drivers
- * @version 0.1.0
  *
  * @details
  * Provides abstraction layer over the pico-sdk API functions for the timer

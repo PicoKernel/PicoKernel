@@ -8,7 +8,6 @@
  * @date 25-04-2026
  * @brief Provides kernel interface for various timer functions.
  * @ingroup kernel
- * @version 0.1.0
  *
  * @details
  * It depends on timer driver and offers timer functions to other parts of the

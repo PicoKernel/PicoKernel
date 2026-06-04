@@ -8,7 +8,6 @@
  * @date 26-04-2026
  * @brief Implementation of kernel time subsystem.
  * @ingroup kernel
- * @version 0.1.0
  *
  * @details
  * Provides a thin abstraction over the hardware timer driver.
@@ -24,7 +23,7 @@
  * - No time synchronization (pure monotonic source)
  * - No protection against misuse of timestamps from other sources
  *
- * @todo Time Sync from different sources to be implemented.
+ * @todo [Kernel] [Enhancement] Time Sync from different sources to be implemented.
  */
 
 #include "time.h"
@@ -56,8 +55,7 @@ uint64_t kernel_uptime_us(void) { return timer_driver_now_us(); }
  * Uses unsigned subtraction to remain correct across
  * uint32_t wraparound.
  *
- * @note
- * - timestamp must originate from kernel_uptime_ms()
+ * @note timestamp must originate from kernel_uptime_ms()
  */
 bool kernel_time_elapsed(uint32_t timestamp, uint32_t duration_ms) {
   return (kernel_uptime_ms() - timestamp) >= duration_ms;

@@ -8,7 +8,6 @@
  * @date 28-04-2026
  * @brief Implementation of kernel state subsystem.
  * @ingroup kernel
- * @version 0.1.0
  *
  * @details
  * Maintains internal kernel state and provides controlled updates to runtime

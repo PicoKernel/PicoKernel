@@ -8,7 +8,6 @@
  * @date 30-05-2026
  * @brief Cooperative round-robin scheduler implementation.
  * @ingroup kernel
- * @version 0.1.0
  *
  * @details
  * Implements PicoKernel's cooperative task scheduler.
@@ -33,12 +32,11 @@
  * - Task table capacity is fixed after initialization.
  * - TASK_YIELD currently behaves the same as TASK_OK.
  *
- * @todo Implement blocking and wake-up mechanisms.
+ * @todo [Kernel] [Enhancement] Implement blocking and wake-up mechanisms.
  *
- * @todo Replace the flat task table with a dynamically allocated linked-list
- *       TCBs when introducing preemptive scheduling.
+ * @todo [Kernel] [Enhancement] Replace the flat task table with a dynamically allocated linked-list TCBs when introducing preemptive scheduling.
  *
- * @todo Introduce a scheduler result/status API for task registration.
+ * @todo [Kernel] [Enhancement] Introduce a scheduler result/status API for task registration.
  */
 #include "scheduler.h"
 #include "../memory/memory.h"
@@ -219,3 +217,4 @@ void scheduler_run_once(void) {
   task_count = free_slot;
   needs_compact = 0;
 }
+

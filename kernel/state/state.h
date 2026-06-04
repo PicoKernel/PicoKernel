@@ -8,7 +8,6 @@
  * @date 28-04-2026
  * @brief Provides kernel runtime state management.
  * @ingroup kernel
- * @version 0.1.0
  *
  * @details
  * Defines the structure and APIs used by the kernel to track system-level

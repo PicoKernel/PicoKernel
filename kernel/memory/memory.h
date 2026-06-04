@@ -8,7 +8,6 @@
  * @date 29-05-2026
  * @brief Provides memory allocations from a static pool upon request.
  * @ingroup kernel
- * @version 0.1.1
  *
  * @details
  * A simple memory allocator owns the static pool of memory when system boots
@@ -24,13 +23,8 @@
  *
  * Security:
  * - Implements a canary to check for metadata corruption, sends kernel panic
- * request on corruption detection.
+ *   request on corruption detection.
  * - Does not check for double-free (yet)
- *
- * @todo Implement double-free detection.
- * @todo Implement calloc & realloc.
- * @todo Implement automatic HEAP_SIZE calibration.
- * @todo Implement backward coalescing in kfree().
  */
 
 #ifndef MEMORY_H
@@ -93,3 +87,4 @@ void kfree(void *);
 void kdump(void);
 #endif
 #endif
+

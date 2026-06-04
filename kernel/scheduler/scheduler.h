@@ -8,7 +8,6 @@
  * @date 30-05-2026
  * @brief Cooperative round-robin task scheduler.
  * @ingroup kernel
- * @version 0.1.0
  *
  * @details
  * Provides a cooperative task scheduling service for PicoKernel.

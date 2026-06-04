@@ -8,7 +8,6 @@
  * @date 27-05-2026
  * @brief Implementation of hardware timer driver.
  * @ingroup drivers
- * @version 0.1.0
  *
  * @details
  * Provides a thin abstraction over the pico-sdk API. It uses the pico-sdk's

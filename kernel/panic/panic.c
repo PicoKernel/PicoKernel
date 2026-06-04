@@ -8,7 +8,6 @@
  * @date 26-04-2026
  * @brief Implementation of the kernel panic handler.
  * @ingroup kernel
- * @version 0.1.0
  *
  * @details
  * Provides the implementation of kernel panic service, which handles
