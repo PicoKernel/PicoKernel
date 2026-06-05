@@ -1,3 +1,7 @@
+/* SPDX-License-Identifier: GPL-3.0-or-later
+ * SPDX-FileCopyrightText: 2025 PicoKernel Contributors
+ */
+
 /**
  * @file groups.h
  * @brief Doxygen group definitions for PicoKernel.
