@@ -34,7 +34,7 @@ jobs:
           TOKEN: ${{ secrets.ISSUE_TOKEN }}
         run: |
           python3 - <<'EOF'
-          import json, os, urllib.request, time
+          import json, os, urllib.request, sys
 
           base  = os.environ["FORGEJO_URL"].rstrip("/")
           repo  = os.environ["REPO"]
@@ -88,15 +88,28 @@ jobs:
                   f"/repos/{owner}/{reponame}/labels"
               )
           }
-          print("LABELS:", label_map)
 
-          def ensure_label(name):
-              try:
-                  api("POST", f"/repos/{owner}/{reponame}/labels",
-                      {"name": name, "color": "#e6e6e6"})
-              except:
-                  pass  # already exists
+          REQUIRED_LABELS = {
+              "Bug",
+              "Cleanup",
+              "Docs",
+              "Driver",
+              "Enhancement",
+              "Interface",
+              "Kernel",
+              "Milestone",
+              "Module",
+              "Perf",
+              "Todo",
+              "WIP",
+          }
 
+          missing = REQUIRED_LABELS - set(label_map)
+
+          if missing:
+              raise RuntimeError(
+                  f"Missing labels: {sorted(missing)}"
+              )
           todos   = json.load(open("/tmp/todos.json"))
           created = 0
 
