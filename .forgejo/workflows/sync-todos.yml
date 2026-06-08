@@ -25,7 +25,7 @@ jobs:
           python-version: "3.x"
 
       - name: Parse @todos
-        run: python3 scripts/parse_todos.py . > /tmp/todos.json
+        run: python3 scripts/parse_todos.py ./src/ > /tmp/todos.json
 
       - name: Open issues for new TODOs
         env:
