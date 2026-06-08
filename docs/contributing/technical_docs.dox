@@ -1,0 +1,166 @@
+/* SPDX-License-Identifier: CC-BY-SA-4.0
+ * SPDX-FileCopyrightText: 2025 PicoKernel Contributors
+ */
+
+/**
+ * @file technical_docs.dox
+ * @author PicoKernel Project
+ * @date 07-06-2026
+ * @brief Technical documentation portal, entry point for all code-level reference.
+ */
+
+/**
+ * @page technical_docs Technical Documentation
+ *
+ * **← Back** @ref contributor_expectations "Contributor Expectations"
+ * | **Back to top** @ref index "Developer Wiki"
+ *
+ * ---
+ *
+ * ## Quick Links
+ *
+ * | | |
+ * |-|-|
+ * | @ref index "Developer Wiki" | @ref arch_overview "Architecture Overview" |
+ * | @ref coding_style "Coding Style" | @ref docs_style "Documentation Style" |
+ *
+ * ---
+ *
+ * ## Overview
+ *
+ * This section contains the code-level reference documentation for PicoKernel.
+ * All content here is generated from Doxygen-annotated source code and kept
+ * current with the codebase.
+ *
+ * If you have not already read the contributor documentation, the recommended
+ * starting point is @ref arch_overview before reading code in any layer.
+ *
+ * ---
+ *
+ * ## Documentation by Layer
+ *
+ * The table below maps each architectural layer to its API reference group.
+ * Each group is generated from the corresponding source layer.
+ *
+ * | Layer | Group | What is documented |
+ * |-------|-------|--------------------|
+ * | Kernel | @subpage kernel | Allocator, scheduler, IPC, panic handler, init sequence, kernel state machine |
+ * | Drivers | @subpage drivers | UART, SPI, I2C, GPIO, hardware timer, flash driver |
+ * | Modules | @subpage modules | NFC, sub-GHz RF, HID, UI, IR, packet capture, Wi-Fi scan |
+ * | Interfaces | @subpage interface | Serial shell, web terminal |
+ *
+ * ---
+ *
+ * ## Kernel
+ *
+ * @ref kernel "→ Kernel API Reference"
+ *
+ * The kernel is the architectural center of PicoKernel. All cross-layer
+ * communication flows through kernel APIs. No other layer is permitted to
+ * bypass it.
+ *
+ * | Subsystem | Description |
+ * |-----------|-------------|
+ * | **Allocator** | Static-pool heap allocator with canary-based corruption detection |
+ * | **Scheduler** | Cooperative round-robin task scheduler |
+ * | **IPC** | Inter-process communication primitives message queues |
+ * | **Panic handler** | Kernel fault, boundary halts and emits diagnostic over USB |
+ * | **Init** | Kernel startup sequence, hardware init, subsystem bring-up |
+ * | **State machine** | Kernel operational state tracking |
+ *
+ * Security and memory safety requirements for kernel code: @ref security_principles.
+ *
+ * ---
+ *
+ * ## Drivers
+ *
+ * @ref drivers "→ Driver API Reference"
+ *
+ * Drivers are thin hardware wrappers. They translate kernel requests into
+ * Pico SDK calls. They contain no business logic and hold no cross-request state.
+ *
+ * | Driver | Hardware |
+ * |--------|----------|
+ * | **UART driver** | RP2350 UART peripheral serial communication |
+ * | **SPI driver** | RP2350 SPI peripheral high-speed serial |
+ * | **I2C driver** | RP2350 I2C peripheral low-speed device bus |
+ * | **GPIO driver** | RP2350 GPIO digital input/output |
+ * | **Hardware timer driver** | RP2350 timer scheduler tick source |
+ * | **Flash driver** | RP2350 XIP flash backing store for LittleFS |
+ * | **CYW43 driver** | CYW43 radio Wi-Fi and Bluetooth hardware |
+ *
+ * @note Only the kernel may call driver functions. No module, interface, or
+ * other layer may call a driver directly. This is an architectural rule and
+ * a review blocker. See @ref arch_overview rule 7.
+ *
+ * ---
+ *
+ * ## Modules
+ *
+ * @ref modules "→ Module API Reference"
+ *
+ * Modules are application-level subsystems. They register tasks with the
+ * kernel scheduler and communicate via IPC. They have no direct hardware access.
+ *
+ * | Module | Purpose | Milestone |
+ * |--------|---------|-----------|
+ * | **Wi-Fi scan** | Scan for visible 802.11 networks | M7 |
+ * | **Packet capture** | Raw 802.11 frame capture in monitor mode | M8 |
+ * | **NFC** | NFC tag read/write | Planned |
+ * | **Sub-GHz RF** | Sub-GHz radio operations | Planned |
+ *
+ * ---
+ *
+ * ## Interfaces
+ *
+ * @ref interface "→ Interface API Reference"
+ *
+ * Interfaces are outward-facing components. They accept input from users or
+ * external systems and route all requests through Kernel APIs.
+ * They never call drivers directly.
+ *
+ * | Interface | Description | Milestone |
+ * |-----------|-------------|-----------|
+ * | **Serial shell** | Interactive command shell over UART | M9 |
+ * | **Web terminal** | Browser-accessible terminal interface | Planned |
+ *
+ * ---
+ *
+ * ## Reading Order for New Code Contributors
+ *
+ * 1. @ref arch_overview "Architecture Overview" - understand the layer rules
+ * 2. @ref coding_style "Coding Style" - understand naming and structure
+ * 3. @ref docs_style "Documentation Style" - understand what is required
+ * 4. @ref security_principles "Security Principles" - understand the security constraints
+ * 5. Pick a layer and read its API reference
+ *
+ * ---
+ *
+ * ## Source Layout
+ *
+ * @code
+ * src/
+ *   kernel/         - Allocator, scheduler, IPC, panic, init
+ *   drivers/        - UART, SPI, I2C, GPIO, timer, flash, CYW43
+ *   modules/        - Wi-Fi, packet capture, NFC, sub-GHz
+ *   interfaces/     - Serial shell, web terminal
+ * include/
+ *   version.h       - Single authoritative version string
+ * @endcode
+ *
+ * ---
+ *
+ * ## Related Pages
+ *
+ * | | |
+ * |-|-|
+ * | @ref arch_overview "Architecture Overview" | Layer model and rules |
+ * | @ref coding_style "Coding Style" | Code conventions used throughout |
+ * | @ref security_principles "Security Principles" | Security requirements for kernel code |
+ * | @ref milestones "Milestones & Roadmap" | What is implemented and what is planned |
+ *
+ * ---
+ *
+ * **← Back** @ref contributor_expectations "Contributor Expectations"
+ * | **Back to top** @ref index "Developer Wiki"
+ */

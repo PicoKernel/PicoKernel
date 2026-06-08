@@ -1,48 +1,61 @@
 ## Summary
-<!-- One-line description of the change -->
+<!-- One-line description of what this PR does -->
 
 ## Type of Change
 
 - [ ] Bug fix
-- [ ] New feature / module
+- [ ] New feature
 - [ ] Refactor
-- [ ] Driver addition
-- [ ] Docs / comments only
+- [ ] Documentation / comments only
 - [ ] Build / toolchain
 
-## Team Area
+## Layer
 
-- [ ] Kernel core (`kernel/`)
-- [ ] Drivers (`drivers/`)
-- [ ] Modules (`modules/`)
-- [ ] Interface / Shell (`interface/`)
+- [ ] Kernel (`src/kernel/`)
+- [ ] Drivers (`src/drivers/`)
+- [ ] Modules (`src/modules/`)
+- [ ] Interface (`src/interface/`)
+- [ ] Build / CI / Docs (no source layer)
 
 ## Milestone
-<!-- Which milestone does this target? M3 / M4 / etc -->
+<!-- Which milestone does this contribute to? e.g. M5 -->
 Target:
 
 ## What Changed & Why
-<!-- Be specific. "refactored X to fix Y" not just "fixed stuff" -->
+<!-- Be specific. "refactored X to fix Y because Z" — not just "fixed stuff" -->
 
 ## Testing
+<!-- What did you test, how, and what did you observe? -->
 
-- [ ] Compiled without errors (`make`)
+- [ ] Compiles cleanly - no warnings: `cmake --build build`
 - [ ] Tested on Pico 2W hardware
-- [ ] Tested in emulator / QEMU (if applicable)
-- [ ] No regression in existing behaviour
+- [ ] UART output included below (if applicable)
+- [ ] Passes Valgrind checks (if applicable)
 
-## Hardware Impact (if any)
-<!-- Memory delta? Stack usage? RP2350-specific behaviour? -->
-- RAM impact: ~___ bytes
-- Flash impact: ~___ bytes
+<details>
+<summary>Test output</summary>
+
+```
+paste serial / test output here
+```
+
+</details>
+
+## Hardware Impact
+<!-- Leave blank if not applicable -->
+
+- RAM delta: ~\_\_\_ bytes
+- Flash delta: ~\_\_\_ bytes
 
 ## Checklist
 
-- [ ] Only touched my team's folder(s)
-- [ ] No unrelated whitespace/formatting changes
-- [ ] Added/updated comments where needed
-- [ ] PR is small and focused (split it if not)
-- [ ] Linked relevant issue: closes #___
+- [ ] Branch targets `dev`, not `main`
+- [ ] No architecture violations - no layer bypasses the kernel, no module or interface calls a driver directly
+- [ ] SPDX + file header block on every new or modified `.c` and `.h`
+- [ ] All new or modified public functions have Doxygen headers (`@brief`, `@param`, `@return`)
+- [ ] No debug output outside `#ifdef KERNEL_DEBUG`
+- [ ] PR is focused - one logical change per PR
+- [ ] Linked issue: closes #\_\_\_
 
 ## WIP?
-<!-- Add **WIP:** prefix to the PR title if not ready for review -->
+<!-- Prefix the PR title with WIP: if this is not ready for review -->

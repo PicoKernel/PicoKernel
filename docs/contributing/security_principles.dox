@@ -1,0 +1,192 @@
+/* SPDX-License-Identifier: CC-BY-SA-4.0
+ * SPDX-FileCopyrightText: 2025 PicoKernel Contributors
+ */
+
+/**
+ * @file security_principles.dox
+ * @author PicoKernel Project
+ * @date 07-06-2026
+ * @brief Security principles: memory safety, layering, debug gates, and panic policy.
+ */
+
+/**
+ * @page security_principles Security Principles
+ *
+ * **← Back** @ref docs_style "Documentation Style"
+ * | **Next →** @ref contributor_expectations "Contributor Expectations"
+ *
+ * ---
+ *
+ * ## Quick Links
+ *
+ * | | |
+ * |-|-|
+ * | @ref index "Developer Wiki" | @ref arch_overview "Architecture Overview" |
+ * | @ref coding_style "Coding Style" | @ref contributor_expectations "Contributor Expectations" |
+ * | @ref kernel "Kernel API" | @ref technical_docs "Technical Docs" |
+ *
+ * ---
+ *
+ * ## Overview
+ *
+ * PicoKernel is the OS brain. Security-conscious
+ * design is a project requirement, not a feature added later.
+ * The principles on this page apply throughout the codebase and are
+ * enforced at review time without exception.
+ *
+ * ---
+ *
+ * ## Memory Safety
+ *
+ * | Mechanism | Purpose |
+ * |-----------|---------|
+ * | Canary value `0xDEADFACEDEADFACE` after every allocation | Detects heap corruption, validated on every `k_free()` |
+ * | `__FILE__` / `__LINE__` tracking per allocation | Every live block records its call site for debugging |
+ * | Explicit panic on invariant violation | No silent undefined behaviour `k_panic()` is always preferred |
+ * | `k_dump` behind `#ifdef KERNEL_DEBUG` | Full heap inspection available only in debug builds |
+ * | Bounds-check before all pointer arithmetic | No `ptr + offset` without size validation |
+ * | No unbounded `memcpy` / `strcpy` | Explicit sizes required, always |
+ *
+ * ### Canary validation
+ *
+ * Every block allocated by `k_alloc()` has a canary placed immediately
+ * after the usable region. `k_free()` validates the canary before releasing
+ * the block. A corrupted canary triggers `k_panic()` immediately the kernel does not attempt to free a corrupted block.
+ *
+ * @code{.c}
+ * #define HEAP_CANARY 0xDEADFACEDEADFACEULL
+ *
+ * // Validated inside k_free() before any deallocation
+ * if (block->canary != HEAP_CANARY)
+ * {
+ *     k_panic("allocator: heap corruption detected");
+ * }
+ * @endcode
+ *
+ * @warning Removing or bypassing canary validation is a review blocker.
+ * No exceptions.
+ *
+ * ---
+ *
+ * ## Layering as a Security Boundary
+ *
+ * The strict architectural layering is also a security containment mechanism.
+ *
+ * | Boundary | What it prevents |
+ * |----------|-----------------|
+ * | Module → Driver blocked | A compromised module cannot write to hardware directly |
+ * | Interface → Driver blocked | An interface bug cannot bypass the scheduler or access devices |
+ * | Drivers kept minimal | Less driver code means less attack surface |
+ * | Kernel as single choke point | All hardware state changes are auditable in one place |
+ *
+ * Full layer rules: @ref arch_overview.
+ *
+ * ---
+ *
+ * ## Debug Gate Policy
+ *
+ * All diagnostic instrumentation **must** be gated behind `#ifdef KERNEL_DEBUG`.
+ *
+ * Release builds must not expose:
+ * - Internal heap layout
+ * - Register contents
+ * - Task state or scheduler internals
+ * - Verbose diagnostic output over any channel
+ *
+ * @code{.c}
+ * #ifdef KERNEL_DEBUG
+ *     k_dump_heap();
+ *     k_dump_task_table();
+ * #endif
+ * @endcode
+ *
+ * @warning Submitting unconditionally-enabled debug output is a review blocker.
+ * It must be corrected before merge, no exceptions for "temporary" debug prints.
+ *
+ * ---
+ *
+ * ## Panic Policy
+ *
+ * When a kernel invariant is violated: **panic**. Do not attempt to recover
+ * from a state the kernel cannot verify.
+ *
+ * | Rule | Detail |
+ * |------|--------|
+ * | Panic should include source location | `__FILE__` and `__LINE__` always emitted |
+ * | Panic includes a human-readable message | Describes what invariant was violated |
+ * | Panics are never swallowed | No `if (panic_condition) { return; }` |
+ * | Panic halts execution | No recovery path; hardware reset is the only recovery |
+ * | A visible panic is better than silent corruption | - |
+ *
+ * @code{.c}
+ * // Correct - explicit, descriptive panic
+ * if (block == NULL)
+ * {
+ *     k_panic("k_alloc: out of heap memory increase HEAP_SIZE");
+ * }
+ *
+ * // Wrong - silent failure
+ * if (block == NULL)
+ * {
+ *     return NULL;  // caller may dereference NULL
+ * }
+ * @endcode
+ *
+ * ---
+ *
+ * ## Defensive Coding Guidelines
+ *
+ * | Practice | Required |
+ * |----------|----------|
+ * | Validate all parameters at public API boundaries | ✅ Yes |
+ * | Treat all external input as untrusted | ✅ Yes |
+ * | Assert preconditions with `k_panic()`, not silent return | ✅ Yes |
+ * | Use `_Static_assert` for compile-time invariants | ✅ Recommended |
+ * | Mark unreachable paths with `k_panic("unreachable")` | ✅ Yes |
+ * | Initialise all variables before use | ✅ Yes |
+ * | Zero-initialise security-sensitive buffers after use | ✅ Yes |
+ *
+ * ---
+ *
+ * ## Driver Restrictions
+ *
+ * Drivers are the only layer permitted to access hardware. This restriction
+ * is both an architectural rule and a security policy.
+ *
+ * | Restriction | Enforcement |
+ * |-------------|-------------|
+ * | No direct hardware register access outside drivers | Review blocker |
+ * | No Pico SDK hardware calls outside drivers | Review blocker |
+ * | Drivers contain no business logic | Review blocker |
+ * | Drivers expose no state to layers above the kernel | Architectural requirement |
+ *
+ * ---
+ *
+ * ## Secure Development Checklist
+ *
+ * Before submitting code that touches the kernel or drivers, verify:
+ *
+ * - [ ] No allocation without a corresponding bounds check
+ * - [ ] No pointer arithmetic without size validation
+ * - [ ] All error paths result in explicit handling, panic or documented return code
+ * - [ ] No diagnostic output outside `#ifdef KERNEL_DEBUG`
+ * - [ ] No direct hardware register access outside drivers
+ * - [ ] Canary validation is present and not bypassed
+ * - [ ] Security-sensitive buffers are zeroed after use
+ * - [ ] All public API parameters are validated at the boundary
+ *
+ * ---
+ *
+ * ## Related Pages
+ *
+ * | | |
+ * |-|-|
+ * | @ref arch_overview "Architecture Overview" | Layer rules that create the security boundary |
+ * | @ref coding_style "Coding Style" | C rules that support memory safety |
+ * | @ref kernel "Kernel API" | Allocator and panic implementation |
+ *
+ * ---
+ *
+ * **← Back** @ref docs_style "Documentation Style"
+ * | **Next →** @ref contributor_expectations "Contributor Expectations"
+ */

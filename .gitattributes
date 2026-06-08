@@ -1,0 +1,82 @@
+# PicoKernel .gitattributes
+# Enforce LF line endings for all text files.
+# Binary files are marked to prevent diff/merge corruption.
+# Linguist overrides prevent vendored code from skewing language stats.
+
+# ─── Default behaviour ──────────────────────────────────────────────────────
+
+# Normalise line endings to LF on checkin for all text files.
+* text=auto eol=lf
+
+# ─── Source files ───────────────────────────────────────────────────────────
+
+*.c     text eol=lf
+*.h     text eol=lf
+*.s     text eol=lf
+*.S     text eol=lf
+*.ld    text eol=lf
+
+# ─── Build system ────────────────────────────────────────────────────────────
+
+CMakeLists.txt  text eol=lf
+*.cmake         text eol=lf
+
+# ─── Documentation ───────────────────────────────────────────────────────────
+
+*.md    text eol=lf
+*.dox   text eol=lf
+*.rst   text eol=lf
+*.txt   text eol=lf
+
+# ─── Scripts ─────────────────────────────────────────────────────────────────
+
+*.sh    text eol=lf
+*.py    text eol=lf
+
+# ─── Config / data ───────────────────────────────────────────────────────────
+
+*.json  text eol=lf
+*.yaml  text eol=lf
+*.yml   text eol=lf
+*.toml  text eol=lf
+*.cfg   text eol=lf
+*.ini   text eol=lf
+Doxyfile text eol=lf
+
+# ─── Binary files ────────────────────────────────────────────────────────────
+# Marked binary to prevent line-ending mangling and to suppress diffs.
+
+*.uf2   binary
+*.elf   binary
+*.bin   binary
+*.a     binary
+*.o     binary
+*.so    binary
+*.hex   binary
+
+# Image assets (if any)
+*.png   binary
+*.jpg   binary
+*.jpeg  binary
+*.gif   binary
+*.ico   binary
+*.svg   text eol=lf
+
+# ─── Linguist overrides ──────────────────────────────────────────────────────
+# Prevent vendored and generated code from skewing language statistics
+# on Codeberg (Gitea/Forgejo honours linguist-* attributes).
+
+pico-sdk/**         linguist-vendored=true
+lib/**              linguist-vendored=true
+third_party/**      linguist-vendored=true
+docs/generated/**   linguist-generated=true
+
+# ─── Export ignore ───────────────────────────────────────────────────────────
+# Files excluded from `git archive` source tarballs.
+
+.gitattributes      export-ignore
+.gitignore          export-ignore
+.gitmodules         export-ignore
+.forgejo/          export-ignore
+docs/               export-ignore
+tests/              export-ignore

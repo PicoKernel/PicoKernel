@@ -1,0 +1,141 @@
+/* SPDX-License-Identifier: CC-BY-SA-4.0
+ * SPDX-FileCopyrightText: 2025 PicoKernel Contributors
+ */
+
+/**
+ * @file workflow_contrib.dox
+ * @author PicoKernel Project
+ * @date 07-06-2026
+ * @brief Contributing workflow: fork, branch, implement, PR, review, merge.
+ */
+
+/**
+ * @page workflow_contrib Contributing Workflow
+ *
+ * **← Back** @ref milestones "Milestones & Roadmap"
+ * | **Next →** @ref git_workflow "Git Workflow"
+ *
+ * @note Read @ref arch_overview "Architecture Overview" before writing code.
+ * Understanding the layering rules is a prerequisite for a clean first PR.
+ *
+ * ---
+ *
+ * ## Quick Links
+ *
+ * | | |
+ * |-|-|
+ * | @ref index "Developer Wiki" | @ref arch_overview "Architecture Overview" |
+ * | @ref git_workflow "Git Workflow" | @ref coding_style "Coding Style" |
+ * | @ref docs_style "Documentation Style" | @ref contributor_expectations "Contributor Expectations" |
+ *
+ * ---
+ *
+ * ## Development Workflow
+ *
+ * @image html developer-workflow.svg "Development Workflow" width=45%
+ *
+ * ---
+ *
+ * ## Step-by-Step: Fork → Branch → PR
+ *
+ * @image html contribution-workflow.svg "Contributor Journey" width=45%
+ *
+ * **1. Fork** the repository on Codeberg.
+ *
+ * **2. Clone your fork:**
+ * @code{.sh}
+ * git clone https://codeberg.org/your-username/PicoKernel.git
+ * cd PicoKernel
+ * git submodule update --init --recursive
+ * @endcode
+ *
+ * **3. Branch from `dev` never from `main`:**
+ * @code{.sh}
+ * git checkout dev
+ * git pull origin dev
+ * git checkout -b feat/layer-initial/your-feature
+ * @endcode
+ *
+ * See @ref git_workflow for the full branch naming convention.
+ *
+ * **4. Implement, test, and document.**
+ *
+ * All three are required. Code that compiles but has no tests and no
+ * documentation will be returned for revision.
+ *
+ * - Coding standards: @ref coding_style
+ * - Documentation standards: @ref docs_style
+ * - Architecture rules: @ref arch_overview
+ *
+ * **5. Open a Pull Request targeting `dev`.**
+ *
+ * Fill all PR fields: title, summary, and test evidence.
+ * An empty PR description will be returned for revision without review.
+ *
+ * ---
+ *
+ * ## PR Checklist
+ *
+ * Before opening a Pull Request, confirm **all** of the following:
+ *
+ * - [ ] Branch targets `dev`, not `main`
+ * - [ ] Branch name follows the naming convention (see @ref git_workflow)
+ * - [ ] Code compiles cleanly: `cmake --build build`
+ * - [ ] No architecture violations (see @ref arch_overview rule list)
+ * - [ ] All public functions have complete Doxygen headers (see @ref docs_style)
+ * - [ ] SPDX + file header block present on every modified `.c` and `.h`
+ * - [ ] No debug output outside `#ifdef KERNEL_DEBUG`
+ * - [ ] No direct hardware register access outside drivers
+ * - [ ] PR title, summary, and test evidence fields are filled
+ *
+ * ---
+ *
+ * ## Review Process
+ *
+ * PRs require at least one maintainer review before merge.
+ *
+ * ### Reviewers check
+ *
+ * | Area | What is verified |
+ * |------|-----------------|
+ * | **Architecture** | No layer violations, kernel is the hub |
+ * | **Documentation** | Complete Doxygen headers, no undocumented public APIs |
+ * | **Correctness** | Logic is sound, error paths are explicit |
+ * | **Security** | Debug gates present, no unchecked pointer arithmetic |
+ * | **Style** | Naming, formatting, and comment conventions followed |
+ *
+ * ### On requested changes
+ *
+ * Requested changes must be addressed before merge. Push back on feedback you
+ * disagree with - but back it up with reasoning. Disagreement handled in
+ * comments leads to a better codebase. Unaddressed feedback leads to no merge.
+ *
+ * ---
+ *
+ * ## Finding Work
+ *
+ * | Resource | Purpose |
+ * |----------|---------|
+ * | [Codeberg Issues](https://codeberg.org/PicoKernel/PicoKernel/issues) | All open work items |
+ * | [Codeberg Milestones](https://codeberg.org/PicoKernel/PicoKernel/milestones) | Milestone-scoped work |
+ * | @ref milestones "Milestones & Roadmap" | Planned subsystems and deliverables |
+ *
+ * @attention Always check that an issue is unassigned and not already in progress
+ * before starting work. Comment on the issue and ask it be assigned to you.
+ *
+ * ---
+ *
+ * ## Related Pages
+ *
+ * | | |
+ * |-|-|
+ * | @ref git_workflow "Git Workflow" | Branch naming, merge strategy, release flow |
+ * | @ref coding_style "Coding Style" | What the reviewer checks for in code |
+ * | @ref docs_style "Documentation Style" | What the reviewer checks for in docs |
+ * | @ref contributor_expectations "Contributor Expectations" | Licensing and ownership |
+ *
+ * ---
+ *
+ * **← Back** @ref milestones "Milestones & Roadmap"
+ * | **Next →** @ref git_workflow "Git Workflow"
+ */

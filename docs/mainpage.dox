@@ -1,0 +1,210 @@
+/* SPDX-License-Identifier: CC-BY-SA-4.0
+ * SPDX-FileCopyrightText: 2025 PicoKernel Contributors
+ */
+
+/**
+ * @file mainpage.dox
+ * @author PicoKernel Project
+ * @date 07-06-2026
+ * @brief Developer wiki landing page and contributor onboarding portal.
+ */
+
+/**
+ * @mainpage PicoKernel Developer Wiki
+ *
+ * @note **This is the developer wiki.** It covers architecture, internal APIs,
+ * contributor workflows, and coding standards. For hardware wiring, flashing
+ * instructions, and build setup, see the
+ * [project README](https://codeberg.org/PicoKernel/PicoKernel/src/branch/main/README.md).
+ *
+ * ---
+ *
+ * ## Quick Links
+ *
+ * | I want to… | Go to |
+ * |------------|-------|
+ * | Understand the architecture | @ref arch_overview "Architecture Overview" |
+ * | Check milestone progress | @ref milestones "Milestones & Roadmap" |
+ * | Make my first contribution | @ref workflow_contrib "Contributing Workflow" |
+ * | Understand the git strategy | @ref git_workflow "Git Workflow" |
+ * | Read the coding standards | @ref coding_style "Coding Style" |
+ * | Read the documentation standards | @ref docs_style "Documentation Style" |
+ * | Understand security requirements | @ref security_principles "Security Principles" |
+ * | Read contributor expectations | @ref contributor_expectations "Contributor Expectations" |
+ * | Browse the API reference | @ref technical_docs "Technical Documentation" |
+ *
+ * ---
+ *
+ * ## What is PicoKernel?
+ *
+ * **PicoKernel** is a bare-metal operating system written in C for the
+ * Raspberry Pi Pico 2W (RP2350, Cortex-M33, 520 KB SRAM).
+ *
+ * There is no RTOS. There is no MMU. The Pico SDK is used strictly as a
+ * hardware abstraction layer. Every primitive - memory allocator, cooperative
+ * scheduler, IPC, flash storage is built from scratch unless stated otherwise.
+ *
+ * The primary application target is a **security research device**, with a
+ * companion ESP32-S3 peer communicating over UART IPC.
+ *
+ * | Property | What it means |
+ * |----------|---------------|
+ * | **Educational** | Every subsystem is documented, explained, and reviewable. |
+ * | **Production-quality** | Engineering discipline is enforced from day one. |
+ * | **Security-conscious** | Canary values, debug gates, and strict layering are not afterthoughts. |
+ * | **Incremental** | Each milestone ships a complete, tested subsystem before the next begins. |
+ *
+ * ---
+ *
+ * ## Design Philosophy
+ *
+ * A small set of hard rules governs every design decision in PicoKernel:
+ *
+ * | Principle | In practice |
+ * |-----------|-------------|
+ * | **Kernel is the hub** | All hardware access and cross-layer communication flows through the kernel. |
+ * | **No silent failures** | Errors are handled explicitly. Panics are preferred over undefined behaviour. |
+ * | **Debug-gated diagnostics** | Heap dumps, verbose logs, and state dumps live behind `#ifdef KERNEL_DEBUG`. |
+ * | **Documentation is code** | Doxygen headers are enforced, not optional. Undocumented code does not merge. |
+ * | **One source of truth** | Version lives in `include/version.h`. No magic strings duplicated anywhere else. |
+ *
+ * Full layer rules and enforcement policy: @ref arch_overview "Architecture Overview".
+ *
+ * ---
+ *
+ * ## Architecture at a Glance
+ *
+ * @verbatim
+ 
+    ┌────────────────┐                  ┌────────────────┐
+    │   Interfaces   │─────────────────►│                │
+    │  (web, shell)  │ commands,        │                │
+    └────────────────┘ scheduler calls  │     Kernel     │──────► Drivers ──► Pico SDK ──► Hardware
+                                        │   (the hub)    │
+    ┌────────────────┐ register, IPC    │                │
+    │    Modules     │─────────────────►│                │
+    │ (NFC, WiFi, …) │◄─────────────────│                │
+    └────────────────┘  dispatch        └────────────────┘
+ 
+    Rules (enforced at review):
+      Interfaces  → Kernel  (directly, including scheduler calls)
+      Modules     → Kernel  (task registration, IPC, requests)
+      Kernel      → Modules (scheduler dispatch only)
+      Kernel      → Drivers (exclusive, no other layer touches drivers)
+      Drivers     → Pico SDK → Hardware
+ 
+  @endverbatim
+ *
+ * Architecture diagrams live in the project README.
+ * Layer rules, philosophy, and enforcement: @ref arch_overview.
+ *
+ * ---
+ *
+ * ## Documentation Map
+ *
+ * @image html documentation-map.svg "Documentation Map" width=80%
+ *
+ * | Area | Purpose | Start here if… |
+ * |------|---------|----------------|
+ * | **Overview & Contributing** | Project context, architecture, workflows, standards | You are new to the project |
+ * | **Technical Documentation** | API reference, kernel internals, driver and module docs | You are reading or writing code |
+ *
+ * ---
+ *
+ * ## Contributor Journey
+ *
+ * @image html contribution-workflow.svg "Contributor Journey" width=45%
+ *
+ * ---
+ *
+ * ## Navigate the Wiki
+ *
+ * ### Overview & Contributing
+ *
+ * | Page | What you will find |
+ * |------|--------------------|
+ * | @subpage arch_overview "Architecture Overview" | Layer model, architectural rules, violation policy |
+ * | @subpage milestones "Milestones & Roadmap" | Progress, milestone descriptions, versioning |
+ * | @subpage workflow_contrib "Contributing Workflow" | Fork, branch, PR, review checklist |
+ * | @subpage git_workflow "Git Workflow" | Branch strategy, naming, merge and release flow |
+ * | @subpage coding_style "Coding Style" | Naming conventions, C guidelines, comment standards |
+ * | @subpage docs_style "Documentation Style" | Doxygen conventions, templates, enforcement |
+ * | @subpage security_principles "Security Principles" | Memory safety, debug gates, panic policy |
+ * | @subpage contributor_expectations "Contributor Expectations" | Licensing, testing, review expectations |
+ *
+ * ### Technical Documentation
+ *
+ * | Group | Contents |
+ * |-------|----------|
+ * | @subpage technical_docs "Technical Docs Portal" | Entry point for all code-level documentation |
+ * | @ref kernel "Kernel API" | Allocator, scheduler, IPC, panic, state machine |
+ * | @ref drivers "Drivers" | UART, SPI, I2C, GPIO, timer |
+ * | @ref modules "Modules" | NFC, sub-GHz, HID, UI, IR |
+ * | @ref interface "Interfaces" | Web terminal, serial shell |
+ *
+ * ---
+ *
+ * ## Recommended Reading Paths
+ *
+ * ### New contributor
+ * 1. This page
+ * 2. @ref arch_overview "Architecture Overview"
+ * 3. @ref milestones "Milestones & Roadmap"
+ * 4. @ref workflow_contrib "Contributing Workflow"
+ * 5. @ref git_workflow "Git Workflow"
+ * 6. @ref coding_style "Coding Style"
+ * 7. @ref docs_style "Documentation Style"
+ * 8. Pick a subsystem from @ref technical_docs "Technical Docs"
+ *
+ * ### Kernel contributor
+ * 1. @ref arch_overview "Architecture Overview"
+ * 2. @ref security_principles "Security Principles"
+ * 3. @ref kernel "Kernel API"
+ *
+ * ### Driver or module contributor
+ * 1. @ref arch_overview "Architecture Overview"
+ * 2. @ref coding_style "Coding Style"
+ * 3. @ref drivers "Drivers" or @ref modules "Modules"
+ *
+ * ### Returning contributor
+ * 1. @ref workflow_contrib "Contributing Workflow"
+ * 2. Relevant subsystem in @ref technical_docs "Technical Docs"
+ *
+ * ---
+ *
+ * ## Milestone Status
+ *
+ * | # | Milestone | Status | Version |
+ * |---|-----------|--------|---------|
+ * | M1 | Toolchain / serial output | ✅ Complete | `0.1.0-alpha` |
+ * | M2 | Panic handler | ✅ Complete | `0.1.0-alpha` |
+ * | M3 | Memory allocator | ✅ Complete | `0.2.0-alpha` |
+ * | M4 | Cooperative round-robin scheduler | ✅ Complete | `0.2.0-alpha` |
+ * | M5 | IPC primitives | 🔄 In progress | `0.3.0-alpha` |
+ * | M6 | Flash storage (LittleFS) | 🔄 In progress | `0.3.0-alpha` |
+ * | M7 | Wi-Fi scan | ⬜ Planned | `0.4.0-beta` |
+ * | M8 | Raw packet capture | ⬜ Planned | `0.4.0-beta` |
+ * | M9 | Serial shell | ⬜ Planned | `0.5.0-beta` |
+ * | M10 | System stress test | ⬜ Planned | `0.5.0-beta` |
+ *
+ * Full tracking and details: @ref milestones "Milestones & Roadmap" |
+ * [Codeberg Milestones](https://codeberg.org/PicoKernel/PicoKernel/milestones)
+ *
+ * ---
+ *
+ * ## License
+ *
+ * PicoKernel is licensed under **GPL-3.0-or-later**.
+ *
+ * Documentation is licensed under **CC BY-SA 4.0**.
+ *
+ * All contributions must be license compatible unless otherwise noted, contributions are accepted under the
+ * license applicable to the file being modified.
+ *
+ * See [LICENSE](https://codeberg.org/PicoKernel/PicoKernel/src/branch/main/LICENSES/GPL-3.0-or-later.txt).
+ * See [LICENSE-docs](https://codeberg.org/PicoKernel/PicoKernel/src/branch/main/LICENSES/CC-BY-SA-4.0.txt).
+ *
+ * ---
+ *
+ * **Next →** @ref arch_overview "Architecture Overview"
+ */

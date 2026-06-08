@@ -1,0 +1,6 @@
+[submodule "lib/pico-sdk"]
+	path = lib/pico-sdk
+	url = https://github.com/raspberrypi/pico-sdk
+[submodule "docs/doxygen-awesome"]
+	path = docs/doxygen-awesome
+	url = https://github.com/jothepro/doxygen-awesome-css.git

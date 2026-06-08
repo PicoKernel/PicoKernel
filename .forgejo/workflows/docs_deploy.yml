@@ -1,0 +1,65 @@
+name: Deploy Docs
+
+on:
+  push:
+    branches:
+      - main
+
+concurrency:
+  group: docs-deploy
+  cancel-in-progress: true
+
+jobs:
+  deploy-docs:
+    runs-on: codeberg-small-lazy
+
+    steps:
+      - name: Checkout PicoKernel
+        uses: actions/checkout@v4
+        with:
+          submodules: recursive
+
+      - name: Install Doxygen and graphviz
+        run: |
+          sudo apt-get update -qq
+          sudo apt-get install -y --no-install-recommends doxygen graphviz
+
+      - name: Generate Doxygen docs
+        run: doxygen docs/Doxyfile
+
+      - name: Inject extensions into HTML
+        run: |
+          find docs/generated/html -name "*.html" -exec sed -i \
+            's|</head>|<script type="text/javascript" src="doxygen-awesome-darkmode-toggle.js"></script><script type="text/javascript" src="doxygen-awesome-fragment-copy-button.js"></script><script type="text/javascript" src="doxygen-awesome-interactive-toc.js"></script><script type="text/javascript" src="doxygen-awesome-paragraph-link.js"></script><script type="text/javascript" src="zoom.js"></script><script type="text/javascript">DoxygenAwesomeDarkModeToggle.init();DoxygenAwesomeFragmentCopyButton.init();DoxygenAwesomeInteractiveToc.init();DoxygenAwesomeParagraphLink.init()</script></head>|' \
+            {} +
+
+      - name: Setup SSH for PicoDocs push
+        run: |
+          mkdir -p ~/.ssh
+          echo "${{ secrets.PICODOCS_DEPLOY_KEY }}" > ~/.ssh/id_ed25519
+          chmod 600 ~/.ssh/id_ed25519
+          ssh-keyscan codeberg.org >> ~/.ssh/known_hosts
+
+      - name: Clone PicoDocs pages branch
+        run: |
+          git clone --depth=1 --branch pages \
+            git@codeberg.org:PicoKernel/PicoDocs.git \
+            /tmp/picodocs
+
+      - name: Replace PicoDocs content with new build
+        run: |
+          find /tmp/picodocs -mindepth 1 \
+            -not -path '/tmp/picodocs/.git' \
+            -not -path '/tmp/picodocs/.git/*' \
+            -delete
+          cp -r docs/generated/html/. /tmp/picodocs/
+
+      - name: Commit and push to PicoDocs
+        run: |
+          cd /tmp/picodocs
+          git config user.name "PicoKernel Bot"
+          git config user.email "picokernel@protonmail.com"
+          git add -A
+          git diff --cached --quiet && echo "No changes to deploy" && exit 0
+          git commit -m "docs: update from PicoKernel@${{ github.sha }}"
+          git push origin pages

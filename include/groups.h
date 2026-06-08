@@ -12,20 +12,26 @@
  * Do not include this file in any source file.
  */
 
+#ifndef DOXYGEN
+#error "This file is for Doxygen only and must not be included in source files."
+#endif
+
 /**
  * @defgroup kernel Kernel
- * @brief Core kernel subsystem.
- *        Maintained by datenbar and rootmnt.
- *
+ * @brief Core OS primitives : memory, scheduling, IPC, and panic handling.
+ */
+
+/**
  * @defgroup drivers Drivers
- * @brief Hardware driver layer.
- *        Maintained by ishanndas21-detroid and krishna-stone.
- *
+ * @brief Thin hardware abstraction layer over the Pico SDK.
+ */
+
+/**
  * @defgroup modules Modules
- * @brief Kernel modules.
- *        Maintained by Amarcode.
- *
+ * @brief Application-level subsystems registered with the kernel scheduler.
+ */
+
+/**
  * @defgroup interface Interface
- * @brief Web and user interface layer.
- *        Maintained by shresth136.
+ * @brief Outward-facing components routing requests through kernel APIs.
  */

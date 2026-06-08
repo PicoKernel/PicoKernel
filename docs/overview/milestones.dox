@@ -1,0 +1,218 @@
+/* SPDX-License-Identifier: CC-BY-SA-4.0
+ * SPDX-FileCopyrightText: 2025 PicoKernel Contributors
+ */
+
+/**
+ * @file milestones.dox
+ * @author PicoKernel Project
+ * @date 07-06-2026
+ * @brief Project milestones, roadmap, and versioning reference.
+ */
+
+/**
+ * @page milestones Milestones & Roadmap
+ *
+ * **← Back** @ref arch_overview "Architecture Overview"
+ * | **Next →** @ref workflow_contrib "Contributing Workflow"
+ *
+ * ---
+ *
+ * ## Quick Links
+ *
+ * | | |
+ * |-|-|
+ * | @ref index "Developer Wiki" | @ref arch_overview "Architecture Overview" |
+ * | @ref workflow_contrib "Contributing" | [Codeberg Milestones](https://codeberg.org/PicoKernel/PicoKernel/milestones) |
+ *
+ * ---
+ *
+ * ## Progress at a Glance
+ *
+ * @image html milestone-completed.svg "Milestone Progress" width=75%
+ *
+ * | # | Milestone | Status | Version |
+ * |---|-----------|--------|---------|
+ * | M1 | Toolchain / serial output | ✅ Complete | `0.1.0-alpha` |
+ * | M2 | Panic handler | ✅ Complete | `0.1.0-alpha` |
+ * | M3 | Memory allocator | ✅ Complete | `0.2.0-alpha` |
+ * | M4 | Cooperative round-robin scheduler | ✅ Complete | `0.2.0-alpha` |
+ * | M5 | IPC primitives | 🔄 In progress | `0.3.0-alpha` |
+ * | M6 | Flash storage (LittleFS) | 🔄 In progress | `0.3.0-alpha` |
+ * | M7 | Wi-Fi scan | ⬜ Planned | `0.4.0-beta` |
+ * | M8 | Raw packet capture | ⬜ Planned | `0.4.0-beta` |
+ * | M9 | Serial shell | ⬜ Planned | `0.5.0-beta` |
+ * | M10 | System stress test | ⬜ Planned | `0.5.0-beta` |
+ *
+ * ---
+ *
+ * ## Completed Milestones
+ *
+ * ### M1 - Toolchain & Serial Output (`0.1.0-alpha`)
+ *
+ * **Goal:** Prove the entire build-flash-debug chain works end to end.
+ *
+ * | Deliverable | Description |
+ * |-------------|-------------|
+ * | CMake build system | Compiles bare-metal C targeting RP2350 |
+ * | Pico SDK integration | SDK used strictly as HAL, no RTOS components |
+ * | USB serial output | `printf`-style debug output over USB |
+ * | Initial project structure | Layer directories established |
+ *
+ * ---
+ *
+ * ### M2 - Panic Handler (`0.1.0-alpha`)
+ *
+ * **Goal:** Establish a reliable fault boundary before any other subsystem is built.
+ *
+ * | Deliverable | Description |
+ * |-------------|-------------|
+ * | `panic()` implementation | Halts execution, emits message over UART |
+ * | No silent failures policy | All invariant violations call `panic()` |
+ * | Debug gate foundation | `#ifdef KERNEL_DEBUG` pattern established |
+ *
+ * ---
+ *
+ * ### M3 - Memory Allocator (`0.2.0-alpha`)
+ *
+ * **Goal:** A working static-pool heap allocator with corruption detection.
+ *
+ * | Deliverable | Description |
+ * |-------------|-------------|
+ * | `k_alloc` / `k_free` | Static pool allocator built from scratch |
+ * | Canary value `0xDEADFACEDEADFACEULL` | Placed after every allocation, validated on free |
+ * | `k_dump` behind debug gate | Full heap inspection in debug builds |
+ *
+ * ---
+ *
+ * ### M4 - Cooperative Scheduler (`0.2.0-alpha`)
+ *
+ * **Goal:** A working cooperative round-robin task scheduler.
+ *
+ * | Deliverable | Description |
+ * |-------------|-------------|
+ * | Task registration API | Modules register tasks via Kernel API |
+ * | Round-robin dispatch | Cooperative, tasks yield explicitly |
+ * | Scheduler-kernel integration | Scheduler is kernel-owned; no direct module access |
+ *
+ * ---
+ *
+ * ## Active Milestones
+ *
+ * ### M5 - IPC Primitives (`0.3.0-alpha`)
+ *
+ * **Goal:** Allow modules to communicate without direct coupling.
+ *
+ * | Planned deliverable | Description |
+ * |--------------------|-------------|
+ * | Message queue | Fixed-size bounded queue, kernel-managed |
+ * | Send / receive API | Exposed through Kernel API only |
+ * | IPC security boundary | No module may read another module's queue directly |
+ *
+ * ---
+ *
+ * ### M6 - Flash Storage / LittleFS (`0.3.0-alpha`)
+ *
+ * **Goal:** Persistent key-value storage backed by flash via LittleFS.
+ *
+ * | Planned deliverable | Description |
+ * |--------------------|-------------|
+ * | LittleFS integration | Filesystem mounted over Pico flash driver |
+ * | Flash driver | Thin driver wrapping Pico SDK flash ops |
+ * | Storage kernel API | Read/write/delete exposed through Kernel API |
+ *
+ * ---
+ *
+ * ## Planned Milestones
+ *
+ * ### M7 - Wi-Fi Scan (`0.4.0-beta`)
+ *
+ * Scan for visible Wi-Fi networks via the CYW43 driver.
+ * Results delivered to the requesting module through IPC.
+ * No network stack, scan only.
+ *
+ * ### M8 - Raw Packet Capture (`0.4.0-beta`)
+ *
+ * Put the CYW43 radio into monitor mode and capture raw 802.11 frames.
+ * Frames buffered via IPC and exposed to requesting modules.
+ *
+ * ### M9 - Serial Shell (`0.5.0-beta`)
+ *
+ * Interactive command shell over UART. First Interface-layer component.
+ * Commands routed to kernel via Kernel API, shell never touches drivers directly.
+ *
+ * ### M10 - System Stress Test (`0.5.0-beta`)
+ *
+ * Full system integration test. All subsystems exercised simultaneously.
+ * Validates scheduler stability, memory allocator under load, IPC throughput,
+ * and storage reliability under concurrent access.
+ *
+ * ---
+ *
+ * ## Versioning Reference
+ *
+ * ### Format
+ *
+ * `MAJOR.MINOR.PATCH-stage.N`
+ *
+ * | Segment | Meaning |
+ * |---------|---------|
+ * | `MAJOR` | Full milestone cycle complete and stable |
+ * | `MINOR` | Every 2 milestones completed |
+ * | `PATCH` | >3 bugfixes, minor improvements, or doc-only changes |
+ * | `-stage` | `alpha.N` / `beta.N` / `rc.N` |
+ * | `.N` | Fix iteration within a stage |
+ *
+ * ### Stage Semantics
+ *
+ * | Stage | Meaning | API stability |
+ * |-------|---------|---------------|
+ * | `alpha` | Core subsystems still missing | APIs will break |
+ * | `beta` | All planned subsystems present, testing in progress | Mostly stable |
+ * | `rc.N` | Believed shippable, confirming stability | Stable |
+ * | *(none)* | Tagged stable release | Stable |
+ *
+ * ### Version Map
+ *
+ * | Version | Milestone state |
+ * |---------|----------------|
+ * | `0.1.0-alpha` | M1 + M2 complete |
+ * | `0.2.0-alpha` | M3 + M4 complete |
+ * | `0.3.0-alpha` | M5 + M6 complete |
+ * | `0.4.0-beta` | M7 + M8 complete, stabilising |
+ * | `0.5.0-beta` | M9 + M10 complete |
+ * | `0.5.0-rc.1` | Hardening for v1 |
+ * | `1.0.0` | First stable release |
+ *
+ * ### When to Bump
+ *
+ * | Change type | Action |
+ * |-------------|--------|
+ * | >3 bugfixes, doc-only, minor improvement | `PATCH++` |
+ * | 2 milestones completed | `MINOR++`, reset `PATCH` to 0 |
+ * | Full milestone cycle, stable | `MAJOR++`, reset `MINOR` + `PATCH` |
+ * | Core subsystems still missing | Keep `-alpha` |
+ * | All subsystems present, API mostly stable | Promote to `-beta` |
+ * | Believed shippable, confirming | Promote to `-rc.N` |
+ *
+ * ### Single Source of Truth
+ *
+ * The authoritative version is always `include/version.h`.
+ * Never hardcode version strings anywhere else.
+ *
+ * Version bumps are made on `dev` and promoted to `main`. See @ref git_workflow for details.
+ *
+ * ---
+ *
+ * ## Related Pages
+ *
+ * | | |
+ * |-|-|
+ * | @ref arch_overview "Architecture Overview" | What each layer delivers |
+ * | @ref git_workflow "Git Workflow" | Release branch and version bump flow |
+ * | [Codeberg Issues](https://codeberg.org/PicoKernel/PicoKernel/issues) | Active work items |
+ *
+ * ---
+ *
+ * **← Back** @ref arch_overview "Architecture Overview"
+ * | **Next →** @ref workflow_contrib "Contributing Workflow"
+ */

@@ -2,4 +2,4 @@
 CMakeLists.*
 **/build/
 .vscode/
-docs/
+docs/generated/

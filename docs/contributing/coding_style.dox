@@ -1,0 +1,275 @@
+/* SPDX-License-Identifier: CC-BY-SA-4.0
+ * SPDX-FileCopyrightText: 2025 PicoKernel Contributors
+ */
+
+/**
+ * @file coding_style.dox
+ * @author PicoKernel Project
+ * @date 07-06-2026
+ * @brief C coding style, naming conventions, and structural guidelines.
+ */
+
+/**
+ * @page coding_style Coding Style
+ *
+ * **← Back** @ref git_workflow "Git Workflow"
+ * | **Next →** @ref docs_style "Documentation Style"
+ *
+ * ---
+ *
+ * ## Quick Links
+ *
+ * | | |
+ * |-|-|
+ * | @ref index "Developer Wiki" | @ref arch_overview "Architecture Overview" |
+ * | @ref docs_style "Documentation Style" | @ref security_principles "Security Principles" |
+ *
+ * ---
+ *
+ * ## Overview
+ *
+ * PicoKernel follows a consistent style across all layers. The goal is not
+ * aesthetic uniformity for its own sake, it is readability, auditability, and
+ * predictability. Code that looks the same everywhere is easier to review,
+ * easier to debug, and easier to hand off.
+ *
+ * Style violations are flagged at review. Persistent deviations block merge.
+ *
+ * ---
+ *
+ * ## Naming Conventions
+ *
+ * ### Functions
+ *
+ * All functions are prefixed with their layer initial and a descriptive verb.
+ *
+ * | Layer | Prefix | Example |
+ * |-------|--------|---------|
+ * | Kernel | `k_` | `k_alloc()`, `k_free()`, `k_panic()` |
+ * | Drivers | `d_` | `d_uart_write()`, `d_spi_transfer()` |
+ * | Modules | `m_` | `m_wifi_scan()`, `m_nfc_init()` |
+ * | Interfaces | `i_` | `i_shell_run()`, `i_web_handle()` |
+ *
+ * Internal (non-public) functions use a double-underscore prefix after the
+ * layer prefix:
+ *
+ * @code{.c}
+ * // Public kernel API
+ * void *k_alloc(size_t size);
+ *
+ * // Internal kernel helper, not exposed in headers
+ * static void k__coalesce_block(heap_block_t *block);
+ * @endcode
+ *
+ * @note Existing pre-v1 functions do not yet 
+ * follow this convention. A full rename pass is planned before v1.0.0.
+ * All new contributions **must** follow the convention above, do not
+ * introduce new functions using the old style.
+ *
+ * ### Types and Structs
+ *
+ * Types use `snake_case` with a `_t` suffix. Struct tags are only used
+ * when the struct contains a pointer to itself (e.g. linked list nodes).
+ *
+ * @code{.c}
+ * // Standard struct: anonymous tag, typedef only
+ * typedef struct {
+ *     size_t   size;
+ *     uint8_t *data;
+ *     uint32_t canary;
+ * } heap_block_t;
+ *
+ * // Self-referential struct: tag required for forward reference
+ * typedef struct block_header_t {
+ *     size_t              size;
+ *     struct block_header_t *next;
+ *     struct block_header_t *prev;
+ * } block_header_t;
+ * @endcode
+ *
+ * ### Constants and Macros
+ *
+ * All constants and function-like macros use `SCREAMING_SNAKE_CASE`:
+ *
+ * @code{.c}
+ * #define HEAP_CANARY      0xDEADFACEDEADFACEULL
+ * #define MAX_TASKS        16
+ * #define ALIGN_UP(x, a)   (((x) + (a) - 1) & ~((a) - 1))
+ * @endcode
+ *
+ * ### Variables
+ *
+ * Local variables and function parameters: `snake_case`, descriptive.
+ *
+ * @code{.c}
+ * size_t block_size = 0;
+ * uint8_t *write_ptr = NULL;
+ * @endcode
+ *
+ * Global variables: prefix with layer initial and double underscore:
+ *
+ * @code{.c}
+ * // Kernel-global scheduler state
+ * static task_t k__task_table[MAX_TASKS];
+ * static uint32_t k__task_count = 0;
+ * @endcode
+ *
+ * ---
+ *
+ * ## File Organisation
+ *
+ * ### Directory structure
+ *
+ * @code
+ * src/
+ *   kernel/       - Allocator, scheduler, IPC, panic, init
+ *   drivers/      - UART, SPI, I2C, GPIO, timer, flash
+ *   modules/      - NFC, WiFi, packet capture, user modules
+ *   interfaces/   - Serial shell, web terminal
+ * include/
+ *   version.h     - Single authoritative version definition
+ * @endcode
+ *
+ * ### Header Guards
+ *
+ * @code{.c}
+ * #ifndef PICOKERNEL_KERNEL_MEMORY_H
+ * #define PICOKERNEL_KERNEL_MEMORY_H
+ *
+ * // ... declarations ...
+ *
+ * #endif /* PICOKERNEL_KERNEL_MEMORY_H */
+ * @endcode
+ *
+ * Format: `PICOKERNEL_<LAYER>_<FILENAME>_H` in `SCREAMING_SNAKE_CASE`.
+ *
+ * @note A migration to fully qualified guards (`PICOKERNEL_<LAYER>_<FILENAME>_H`)
+ * is planned before v1.0.0 to avoid collisions with third-party headers.
+ * All new headers must use the qualified format from this point forward.
+ *
+ * ### Recommended include order
+ *
+ * @code{.c}
+ * // 1. Corresponding header (for .c files)
+ * #include "kernel/alloc.h"
+ *
+ * // 2. Other PicoKernel headers (alphabetical)
+ * #include "kernel/panic.h"
+ * #include "kernel/version.h"
+ *
+ * // 3. Pico SDK headers
+ * #include "pico/stdlib.h"
+ * #include "hardware/flash.h"
+ *
+ * // 4. C standard library
+ * #include <stdint.h>
+ * #include <stddef.h>
+ * #include <string.h>
+ * @endcode
+ *
+ * ---
+ *
+ * ## Formatting
+ *
+ * | Rule | Detail |
+ * |------|--------|
+ * | Indentation | 4 spaces - no tabs |
+ * | Line length | 100 characters soft limit, string literals are exempt |
+ * | Braces | K&R style - opening brace on the same line, except for function definitions | 
+ * | Pointer alignment | `uint8_t *ptr` - star with the variable, not the type |
+ * | Blank lines | One between logical sections, two before a function definition |
+ *
+* @code{.c}
+ * void *k_alloc(size_t size)
+ * {
+ *     if (size == 0) {
+ *         k_panic("k_alloc: zero-size allocation requested");
+ *     }
+ *
+ *     block_header_t *block = k__find_free_block(size);
+ *
+ *     if (block == NULL) {
+ *         k_panic("k_alloc: out of memory");
+ *     }
+ *
+ *     block->canary = CANARY;
+ *     return (void *)(block + 1);
+ * }
+ * @endcode
+ *
+ * @note Debug output functions such as `kdump()` may use
+ * `// clang-format off` and `// clang-format on` guards around
+ * long diagnostic `printf` lines. This is the only permitted use
+ * of format guards. Do not use them to bypass style rules in
+ * non-debug code.
+ *
+ * ---
+ *
+ * ## Error Handling
+ *
+ * | Situation | Required behaviour |
+ * |-----------|-------------------|
+ * | Kernel invariant violated | `k_panic()` with descriptive message |
+ * | Invalid parameter to public API | `k_panic()` or return error code and document which |
+ * | Allocation failure | `k_panic()` no silent NULL return without documentation |
+ * | Driver error | Return error code, do not swallow silently |
+ * | Unreachable code path | `k_panic("unreachable: <context>")` |
+ *
+ * There are no silent failures. Every error path results in either an explicit
+ * return code (documented in the function's `@return`) or a panic.
+ *
+ * ---
+ *
+ * ## C Language Rules
+ *
+ * | Rule | Rationale |
+ * |------|-----------|
+ * | C11–C23 (`-std=c11` minimum) | New code may use C23 features where the toolchain supports them | 
+ * | No implicit `int` | All functions and variables explicitly typed |
+ * | No `goto` | Except for cleanup patterns in kernel init, document each use |
+ * | `NULL` not `0` for pointers | Semantic clarity |
+ * | `sizeof` not magic numbers for buffer sizes | Prevents silent truncation |
+ * | Cast explicitly | Required for narrowing conversions and pointer casts, not general arithmetic |
+ * | Unused parameters | Mark with `(void)param;` do not leave silently unused |
+ *
+ * @code{.c}
+ * // Correct
+ * static void k__unused_cb(uint32_t event, void *ctx)
+ * {
+ *     (void)event;
+ *     (void)ctx;
+ * }
+ * @endcode
+ *
+ * ---
+ *
+ * ## Security-Relevant Coding Rules
+ *
+ * These overlap with @ref security_principles but are restated here for
+ * completeness. All are enforced at review.
+ *
+ * | Rule | Detail |
+ * |------|--------|
+ * | Bounds-check before pointer arithmetic | Validate size before `ptr + offset` |
+ * | No unbounded `memcpy` / `strcpy` | Always supply explicit sizes |
+ * | Canary values on heap blocks | Never remove or bypass canary validation |
+ * | Debug output behind `#ifdef KERNEL_DEBUG` | No diagnostic output in release builds |
+ * | No direct hardware register access outside drivers | Architectural rule - review blocker |
+ *
+ * Full security policy: @ref security_principles.
+ *
+ * ---
+ *
+ * ## Related Pages
+ *
+ * | | |
+ * |-|-|
+ * | @ref docs_style "Documentation Style" | How to document the code you write |
+ * | @ref security_principles "Security Principles" | Security constraints in more detail |
+ * | @ref arch_overview "Architecture Overview" | Layer rules that affect code structure |
+ *
+ * ---
+ *
+ * **← Back** @ref git_workflow "Git Workflow"
+ * | **Next →** @ref docs_style "Documentation Style"
+ */

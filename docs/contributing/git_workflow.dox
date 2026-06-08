@@ -1,0 +1,196 @@
+/* SPDX-License-Identifier: CC-BY-SA-4.0
+ * SPDX-FileCopyrightText: 2025 PicoKernel Contributors
+ */
+
+/**
+ * @file git_workflow.dox
+ * @author PicoKernel Project
+ * @date 07-06-2026
+ * @brief Git branching strategy, naming conventions, and release flow.
+ */
+
+/**
+ * @page git_workflow Git Workflow
+ *
+ * **← Back** @ref workflow_contrib "Contributing Workflow"
+ * | **Next →** @ref coding_style "Coding Style"
+ *
+ * ---
+ *
+ * ## Quick Links
+ *
+ * | | |
+ * |-|-|
+ * | @ref index "Developer Wiki" | @ref workflow_contrib "Contributing Workflow" |
+ * | @ref coding_style "Coding Style" | @ref milestones "Milestones & Roadmap" |
+ *
+ * ---
+ *
+ * ## Branch Strategy
+ *
+ * @image html git-workflow.svg "Git Workflow" width=80%
+ *
+ * PicoKernel uses a two-trunk strategy:
+ *
+ * | Branch | Purpose | Protected |
+ * |--------|---------|-----------|
+ * | `main` | Stable, tagged releases only | ✅ Yes |
+ * | `dev` | Integration branch - all feature work merges here | ✅ Yes |
+ * | `feat/<layer>/<name>` | New feature development | No |
+ * | `bugfix/<layer>/<name>` | Bug fixes | No |
+ * | `docs/<name>` | Documentation-only changes | No |
+ * | `hotfix/<name>` | Critical fixes to `main` | No |
+ *
+ * @warning **Never branch from `main` for regular work.** Branch from `dev`.
+ * The only exception is `hotfix/*` branch.
+ *
+ * ---
+ *
+ * ## Branch Naming Convention
+ *
+ * All branches include a **layer initial** to identify the affected subsystem:
+ *
+ * | Pattern | Use | Example |
+ * |---------|-----|---------|
+ * | `feat/k/<name>` | Kernel feature | `feat/k/ipc-primitives` |
+ * | `feat/d/<name>` | Driver feature | `feat/d/spi-driver` |
+ * | `feat/m/<name>` | Module feature | `feat/m/wifi-scan` |
+ * | `feat/i/<name>` | Interface feature | `feat/i/serial-shell` |
+ * | `bugfix/k/<name>` | Kernel bugfix | `bugfix/k/allocator-coalesc` |
+ * | `bugfix/d/<name>` | Driver bugfix | `bugfix/d/uart-overflow` |
+ * | `bugfix/m/<name>` | Module bugfix | `bugfix/m/nfc-timeout` |
+ * | `bugfix/i/<name>` | Interface bugfix | `bugfix/i/shell-parse` |
+ * | `docs/<name>` | Documentation only | `docs/arch-overview-update` |
+ * | `hotfix/<name>` | Critical patch on `main` | `hotfix/panic-null-deref` |
+ *
+ * Layer initials: `k` = kernel, `d` = drivers, `m` = modules, `i` = interfaces.
+ *
+ * ---
+ *
+ * ## Normal Development Flow
+ *
+ * @code{.sh}
+ * # 1. Start from dev
+ * git checkout dev
+ * git pull origin dev
+ *
+ * # 2. Create feature branch
+ * git checkout -b feat/k/ipc-primitives
+ *
+ * # 3. Implement, commit with descriptive messages
+ * # Stage changes interactively (review each hunk before committing)
+ * git add -p
+ * git commit -m "{layer-name}: meaningful commit message"
+ *
+ * # 4. Push and open PR targeting dev
+ * git push origin feat/{layer-initial}/feature-name
+ * @endcode
+ *
+ * ---
+ *
+ * ## Commit Message Format
+ *
+ * @code
+ * <subsystem>: <short imperative summary>
+ *
+ * Optional longer explanation of why the change was made, not what it does.
+ * What it does is visible in the diff.
+ *
+ * Refs: #{issue_number} #Optional but encouraged
+ * @endcode
+ *
+ * **Examples:**
+ * @code
+ * kernel: add canary validation to kfree
+ * scheduler: fix task starvation under high IPC load
+ * docs: update architecture overview layering table
+ * @endcode
+ *
+ * - Use the imperative mood: "add", "fix", "remove", "update"
+ * - Keep the subject line under 72 characters
+ * - Reference the issue number where applicable
+ *
+ * ---
+ *
+ * ## Merge Strategy
+ *
+ * | Scenario | Strategy | Notes |
+ * |----------|----------|-------|
+ * | `feat/*` → `dev` | Merge commit or squash | Squash for small / noisy histories |
+ * | `bugfix/*` → `dev` | Merge commit | Preserve fix history |
+ * | `dev` → `main` | Merge commit via `release/*` | Must go through release branch |
+ * | `hotfix/*` → `main` | Merge commit | Immediately cherry-pick or merge to `dev` also |
+ * | `docs/*` → `dev` | Merge commit | |
+ *
+ * @note Direct pushes to `main` and `dev` are not permitted.
+ * All changes reach `main` via PR from `dev` only.
+ * Hotfixes branch off `main` directly and merge back to both `main` and `dev`.*
+ *
+ * ---
+ *
+ * ## Release Flow
+ *
+ * @code{.sh}
+ * # 1. Ensure dev is clean and passing CI
+ * git checkout dev
+ * git pull origin dev
+ *
+ * # 2. Bump version in include/version.h (Read the note below first)
+ * # PICOKERNEL_VERSION_STR = "0.3.0-alpha"
+ * git add include/version.h
+ * git commit -m "chore: bump version to 0.3.0-alpha"
+ *
+ * # 3. Merge dev to main
+ * git checkout main
+ * git merge --no-ff dev
+ *
+ * # 4. Tag and push
+ * git tag -a v0.3.0-alpha -m "Release 0.3.0-alpha: M5 + M6 complete"
+ * git push origin main --tags
+ * @endcode
+ *
+ * @note The version bump action fires automatically on tag push and updates
+ * `include/version.h`, `docs/Doxyfile`, and the README badge.
+ * Manual bump in step 2 is only needed if the action has not run yet.
+ *
+ * ---
+ *
+ * ## Hotfix Flow
+ *
+ * Used only for critical bugs on a stable tagged release.
+ *
+ * @code{.sh}
+ * # 1. Branch from main
+ * git checkout main
+ * git pull origin main
+ * git checkout -b hotfix/panic-null-deref
+ *
+ * # 2. Fix, test, bump PATCH version
+ *
+ * # 3. Merge to main and tag
+ * git checkout main
+ * git merge --no-ff hotfix/panic-null-deref
+ * git tag -a v1.0.1 -m "Hotfix: panic null deref on init"
+ * git push origin main --tags
+ *
+ * # 4. Merge back to dev
+ * git checkout dev
+ * git merge --no-ff hotfix/panic-null-deref
+ * git push origin dev
+ * @endcode
+ *
+ * ---
+ *
+ * ## Related Pages
+ *
+ * | | |
+ * |-|-|
+ * | @ref workflow_contrib "Contributing Workflow" | Day-to-day PR process |
+ * | @ref milestones "Milestones & Roadmap" | When versions bump |
+ * | @ref contributor_expectations "Contributor Expectations" | Ownership and licensing |
+ *
+ * ---
+ *
+ * **← Back** @ref workflow_contrib "Contributing Workflow"
+ * | **Next →** @ref coding_style "Coding Style"
+ */

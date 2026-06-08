@@ -1,0 +1,163 @@
+/* SPDX-License-Identifier: CC-BY-SA-4.0
+ * SPDX-FileCopyrightText: 2025 PicoKernel Contributors
+ */
+
+/**
+ * @file contributor_expectations.dox
+ * @author PicoKernel Project
+ * @date 07-06-2026
+ * @brief Contributor expectations: licensing, testing, ownership, and review conduct.
+ */
+
+/**
+ * @page contributor_expectations Contributor Expectations
+ *
+ * **← Back** @ref security_principles "Security Principles"
+ * | **Next →** @ref technical_docs "Technical Documentation"
+ *
+ * ---
+ *
+ * ## Quick Links
+ *
+ * | | |
+ * |-|-|
+ * | @ref index "Developer Wiki" | @ref workflow_contrib "Contributing Workflow" |
+ * | @ref git_workflow "Git Workflow" | @ref coding_style "Coding Style" |
+ * | @ref docs_style "Documentation Style" | @ref security_principles "Security Principles" |
+ *
+ * ---
+ *
+ * ## Overview
+ *
+ * PicoKernel welcomes contributors of all experience levels. These expectations
+ * exist to keep the project healthy, sustainable, and welcoming for everyone.
+ *
+ * ---
+ *
+ * ## Licensing
+ *
+ * PicoKernel source code is licensed under **GPL-3.0-or-later**.
+ *
+ * | Requirement | Detail |
+ * |-------------|--------|
+ * | License compatibility | All contributed code must be compatible with GPL-3.0-or-later |
+ * | SPDX header | Every `.c`, `.h`, and `.dox` file must carry relevant SPDX block |
+ * | No proprietary code | Do not submit code you do not have the right to contribute |
+ * | No license contamination | Do not introduce dependencies with incompatible licenses |
+ * | DCO | By opening a PR, you confirm the contribution is your own work or appropriately licensed |
+ *
+ * By opening a Pull Request, you confirm:
+ * > *"I have the right to submit this contribution, and I agree it will be
+ * > distributed under GPL-3.0-or-later."*
+ *
+ * See [LICENSE](https://codeberg.org/PicoKernel/PicoKernel/src/branch/main/LICENSES/).
+ *
+ * ---
+ *
+ * ## Testing Expectations
+ *
+ * | Requirement | Enforcement |
+ * |-------------|-------------|
+ * | Code compiles cleanly without warnings | **Required**, PR will not merge otherwise |
+ * | Bug fixes include a description of how the fix was verified | **Required** |
+ * | Test output included in PR description | **Required** where applicable |
+ * | Edge cases considered and documented | Strongly recommended |
+ *
+ * PicoKernel does not yet have a formal automated test framework. Until one
+ * is established, test evidence means:
+ * - Build output confirming clean compilation
+ * - UART/USB output demonstrating correct runtime behaviour
+ * - Manual description of what was exercised and what was observed
+ *
+ * @note When a test framework is established, this section will be updated
+ * and automated test requirements will be enforced at review.
+ *
+ * ---
+ *
+ * ## Documentation Expectations
+ *
+ * | Requirement | Enforcement |
+ * |-------------|-------------|
+ * | All public APIs documented with Doxygen | **Blocked** without it |
+ * | SPDX + file header on every modified file | **Blocked** without it |
+ * | `.dox` pages updated if behaviour changes | **Required** |
+ * | Diagrams updated if architecture changes | **Required** |
+ *
+ * Full documentation standards: @ref docs_style.
+ *
+ * ---
+ *
+ * ## Code Ownership
+ *
+ * | Principle | Detail |
+ * |-----------|--------|
+ * | Collective ownership | No contributor owns a subsystem exclusively |
+ * | Reviewers may request changes from anyone | - |
+ * | Maintainers have final merge authority | Final decisions rest with project maintainers |
+ * | Refactoring is welcome | Improvement PRs are encouraged, raise an issue first for large changes |
+ *
+ * ---
+ *
+ * ## Review Conduct
+ *
+ * Code review is a technical conversation, not a judgment of the contributor.
+ *
+ * | Expectation | For contributors | For reviewers |
+ * |-------------|-----------------|---------------|
+ * | Be specific | Address all feedback before merge | Comment on the code, not the person |
+ * | Disagree constructively | Push back with reasoning | Explain the why behind every request |
+ * | Respond promptly | Don't leave PRs idle for weeks | Don't leave reviews pending for weeks |
+ * | Close cleanly | Update or close stale PRs | Request changes clearly |
+ *
+ * @note A requested change you disagree with is an invitation to a technical
+ * discussion not a rejection. Raise your reasoning in the PR comments.
+ * The best outcome is always understanding, not compliance.
+ *
+ * ---
+ *
+ * ## Communication
+ *
+ * | Channel | Purpose |
+ * |---------|---------|
+ * | [Codeberg Issues](https://codeberg.org/PicoKernel/PicoKernel/issues) | Bug reports, feature requests, design proposals |
+ * | Pull Request comments | Code-level discussion |
+ * | Issue comments | Design and planning discussion |
+ * | [Discord](https://discord.gg/Ucb9xt8B6r) | For general stuff | 
+ *
+ * For significant architectural changes, open an issue for discussion before
+ * writing code. A PR that changes architecture without prior discussion is
+ * likely to be returned for redesign.
+ *
+ * ---
+ *
+ * ## Summary Checklist
+ *
+ * Before opening any Pull Request:
+ *
+ * - [ ] Contribution is GPL-3.0-or-later compatible
+ * - [ ] SPDX block present on all new or modified files
+ * - [ ] All public APIs have complete Doxygen documentation
+ * - [ ] Code compiles cleanly: `cmake --build build`
+ * - [ ] Test evidence included in the PR description
+ * - [ ] Branch targets `dev`, not `main`
+ * - [ ] PR title, summary, and test evidence fields are filled
+ * - [ ] No architecture violations
+ * - [ ] No debug output outside `#ifdef KERNEL_DEBUG`
+ *
+ * ---
+ *
+ * ## Related Pages
+ *
+ * | | |
+ * |-|-|
+ * | @ref workflow_contrib "Contributing Workflow" | Step-by-step PR process |
+ * | @ref git_workflow "Git Workflow" | Branch strategy and naming |
+ * | @ref coding_style "Coding Style" | What reviewers check for in code |
+ * | @ref docs_style "Documentation Style" | What reviewers check for in docs |
+ * | @ref security_principles "Security Principles" | Security requirements |
+ *
+ * ---
+ *
+ * **← Back** @ref security_principles "Security Principles"
+ * | **Next →** @ref technical_docs "Technical Documentation"
+ */

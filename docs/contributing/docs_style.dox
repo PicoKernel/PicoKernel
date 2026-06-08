@@ -1,0 +1,306 @@
+/* SPDX-License-Identifier: CC-BY-SA-4.0
+ * SPDX-FileCopyrightText: 2025 PicoKernel Contributors
+ */
+
+/**
+ * @file docs_style.dox
+ * @author PicoKernel Project
+ * @date 07-06-2026
+ * @brief Documentation standards: Doxygen conventions, templates, and enforcement.
+ */
+
+/**
+ * @page docs_style Documentation Style
+ *
+ * **← Back** @ref coding_style "Coding Style"
+ * | **Next →** @ref security_principles "Security Principles"
+ *
+ * ---
+ *
+ * ## Quick Links
+ *
+ * | | |
+ * |-|-|
+ * | @ref index "Developer Wiki" | @ref coding_style "Coding Style" |
+ * | @ref security_principles "Security Principles" | @ref workflow_contrib "Contributing Workflow" |
+ *
+ * ---
+ *
+ * ## Philosophy
+ *
+ * Documentation in PicoKernel is a must. It is not
+ * written after the fact and not waived under time pressure.
+ *
+ * > *If it isn't documented, it doesn't exist.*
+ *
+ * Undocumented public APIs do not merge. This is not a preference, it is an
+ * enforced project requirement.
+ *
+ * ---
+ *
+ * ## Enforcement Table
+ *
+ * | Requirement | Scope | Enforcement |
+ * |-------------|-------|-------------|
+ * | SPDX header + `@file` block | Every `.c` and `.h` | **Blocked** - PR will not merge |
+ * | `@brief` on every public function | All public APIs | **Blocked** |
+ * | `@param` on every parameter | All public APIs | **Blocked** |
+ * | `@return` on every non-void function | All public APIs | **Blocked** |
+ * | `@ingroup` on every source file | All source files | **Blocked** |
+ * | Inline `/**<` on all public struct fields | Public structs | **Blocked** |
+ * | `@details` for non-obvious behaviour | Complex functions | Recommended |
+ * | `@note` for side effects / calling context | ISR-safe? requires init? | Recommended |
+ * | `@warning` for dangerous or misuse-prone APIs | Risky APIs | Recommended |
+ * | `@todo` with subsystem + type labels | Outstanding work | Required for known gaps |
+ *
+ * ---
+ *
+ * ## File Header Template
+ *
+ * Every `.h` file begins with this exact block:
+ *
+ * @code{.c}
+ * /* SPDX-License-Identifier: GPL-3.0-or-later
+ *  * SPDX-FileCopyrightText: 2025 PicoKernel Contributors
+ *  */
+ *
+ * /**
+ *  * @file filename.h
+ *  * @author your-handle
+ *  * @date DD-MM-YYYY
+ *  * @brief One-line summary of what this header exposes.
+ *  * @ingroup group_name
+ *  *
+ *  * @details
+ *  * Longer description of the subsystem this header belongs to.
+ *  *
+ *  * Constraints:
+ *  * - List hard constraints on usage or behaviour.
+ *  *
+ *  * Security:
+ *  * - List security considerations, threat assumptions, or known weaknesses.
+ *  */
+ *
+ * #ifndef PICOKERNEL_LAYER_FILENAME_H
+ * #define PICOKERNEL_LAYER_FILENAME_H
+ *
+ * #includes
+ *
+ * // public function declarations with full Doxygen
+ *
+ * #ifdef KERNEL_DEBUG
+ * // debug-only declarations
+ * #endif
+ *
+ * #endif
+ * @endcode
+ *
+ * ---
+ *
+ * Every `.c` file begins with this exact block:
+ *
+ * @code{.c}
+ * /* SPDX-License-Identifier: GPL-3.0-or-later
+ *  * SPDX-FileCopyrightText: 2025 PicoKernel Contributors
+ *  */
+ *
+ * /**
+ *  * @file filename.c
+ *  * @author your-handle
+ *  * @date DD-MM-YYYY
+ *  * @brief Implementation of <subsystem>.
+ *  * @ingroup group_name
+ *  *
+ *  * @details
+ *  * Implementation description. Include design decisions and data
+ *  * structure choices here, not in the header.
+ *  *
+ *  * Design notes:
+ *  * - Key design decisions worth knowing.
+ *  *
+ *  * Known limitations:
+ *  * - Outstanding issues, with (yet) where applicable.
+ *  *
+ *  * @todo [Subsystem] [Type] Description. (Subsystem & Type must be one of the existing labels)
+ *  */
+ *
+ * #include "filename.h"
+ * #include "../subsystem/dependency.h"
+ * #include <stdint.h>
+ *
+ * // macros document with - /** */
+ * // internal typedefs never exposed in headers
+ * // static globals document with - /** */
+ * // static helper functions, full Doxygen
+ * // public functions, full Doxygen
+ *
+ * #ifdef KERNEL_DEBUG
+ * // debug-only implementations
+ * #endif
+ * @endcode
+ *
+ * ---
+ *
+ * ## Function Documentation Template
+ *
+ * @verbatim
+  /**
+   * @brief One-line imperative summary.
+   *
+   * @details
+   * Longer explanation of behaviour, preconditions, and any invariants
+   * the caller must satisfy. Required for non-trivial functions.
+   *
+   * @param[in]  name   What this input represents and its valid range.
+   * @param[out] name   What this output contains after the call returns.
+   * @param[in,out] name Value read and updated by this function.
+   * @return            All possible return values and what each means.
+   *
+   * @note  Side effects. Calling context constraints (ISR-safe? requires
+   *        prior init? must be called with scheduler suspended?).
+   * @warning Anything dangerous, easy to misuse, or with non-obvious
+   *          consequences.
+   */
+  @endverbatim
+ *
+ * ---
+ *
+ * ## Struct Documentation Template
+ *
+ * @verbatim
+  /**
+   * @brief One-line description of this type's purpose.
+   * @ingroup group_name
+   */
+  typedef struct {
+      size_t   size;      /**< Total allocation size in bytes. */
+      uint8_t *data;      /**< Pointer to the usable memory region. */
+      uint32_t canary;    /**< Corruption guard must equal HEAP_CANARY. */
+      bool     in_use;    /**< True if this block is currently allocated. */
+  } heap_block_t;
+  @endverbatim
+ *
+ * ---
+ *
+ * ## Doxygen Group Declarations
+ *
+ * Each layer declares its group in a dedicated header. All files in that layer
+ * reference the group via `@ingroup`.
+ *
+ * **Declaring a group** (in `include/groups.h`):
+ * @verbatim
+  /**
+   * @defgroup kernel Kernel
+   * @brief Allocator, scheduler, IPC, panic handler, and kernel state machine.
+   */
+  @endverbatim
+ *
+ * **Joining a group** (in every kernel source file):
+ * @verbatim
+  /**
+   * @file alloc.c
+   * @ingroup kernel
+   */
+  @endverbatim
+ *
+ * Established group names:
+ *
+ * | Group name | Layer |
+ * |------------|-------|
+ * | `kernel` | Kernel subsystems |
+ * | `drivers` | All hardware drivers |
+ * | `modules` | Application modules |
+ * | `interface` | User-facing interfaces |
+ *
+ * ---
+ *
+ * ## Todo Format
+ *
+ * Todos must include at least two labels: subsystem and type.
+ * Valid labels mirror those on the
+ * [Codeberg labels page](https://codeberg.org/PicoKernel/PicoKernel/labels).
+ *
+ * @code{.c}
+ * @todo [Kernel][Enhancement] Replace linear scan with doubly-linked list for backward coalescing.
+ * @todo [Kernel][Enhancement] Implement priority-aware dispatch in a future milestone.
+ * @todo [Driver][Bug] UART driver loses bytes at 115200 baud under high load.
+ * @endcode
+ *
+ * ---
+ *
+ * ## .dox Page Standards
+ *
+ * All `.dox` wiki pages must include:
+ *
+ * | Element | Requirement |
+ * |---------|-------------|
+ * | SPDX + `@file` block | Top of every `.dox` file |
+ * | Navigation header | `← Back \| → Next` on the first and last lines |
+ * | **Quick Links** table | Near the top, after the navigation header |
+ * | **Related Pages** section | Near the bottom, before the nav footer |
+ * | Navigation footer | `← Back \| → Next` matching the header |
+ *
+ * Cross-reference other pages using `@ref page_id "Display Name"`.
+ * Never use raw URLs for internal wiki links.
+ *
+ * ---
+ *
+ * ## Diagram Standards
+ *
+ * All diagrams are stored as pre-generated SVGs in `docs/assets/docs/`.
+ * PlantUML source files are not published, only the rendered SVGs
+ * are committed to the repository.
+ *
+ * SVGs are generated with the `-nometadata` and `-tsvg` flag so no PlantUML
+ * source is embedded in the output and the output is transparent svg.
+ *
+ * ### Diagram requirements
+ *
+ * | Requirement | Detail |
+ * |-------------|--------|
+ * | Transparent background | Required for both light and dark Doxygen themes |
+ * | Legends | Include where color coding would otherwise be ambiguous |
+ * | Orthogonal routing | All connection lines use orthogonal routing |
+ * | Inline element colors | Consistent with the project color palette |
+ *
+ * @note Contributors submitting changes that require diagram updates
+ * should include the regenerated SVG in their PR. PlantUML source
+ * is not required.
+ *
+ * ### Embedding diagrams in .dox pages
+ *
+ * @code
+ * @image html diagram_name.svg 
+ * @endcode
+ *
+ * The filename matches the `.svg` extension.
+ * `IMAGE_PATH` in the Doxyfile points to `docs/assets/docs/` where SVGs are kept.
+ *
+ * ---
+ *
+ * ## Writing Standards (Recommended)
+ *
+ * | Rule | Detail |
+ * |------|--------|
+ * | Active voice | "The scheduler dispatches tasks" not "Tasks are dispatched by the scheduler" |
+ * | Imperative `@brief` | "Allocate a block of memory" not "Allocates a block of memory" |
+ * | Present tense in `@details` | Describe current behaviour, not historical intent |
+ * | No walls of text | Break prose with tables, code blocks, and bullet points |
+ * | Precise over verbose | One accurate sentence beats three vague ones |
+ * | Spell out acronyms on first use | "Inter-Process Communication (IPC)" |
+ *
+ * ---
+ *
+ * ## Related Pages
+ *
+ * | | |
+ * |-|-|
+ * | @ref coding_style "Coding Style" | The code conventions docs accompany |
+ * | @ref workflow_contrib "Contributing Workflow" | What reviewers check for |
+ * | @ref security_principles "Security Principles" | Security doc requirements |
+ *
+ * ---
+ *
+ * **← Back** @ref coding_style "Coding Style"
+ * | **Next →** @ref security_principles "Security Principles"
+ */

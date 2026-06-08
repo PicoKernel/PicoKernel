@@ -1,0 +1,76 @@
+name: Version Bump
+
+on:
+  push:
+    tags:
+      - "v*.*.*"
+
+concurrency:
+  group: version-bump
+  cancel-in-progress: false
+
+jobs:
+  bump-version:
+    runs-on: codeberg-tiny
+
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v4
+        with:
+          ref: main
+          fetch-depth: 0
+
+      - name: Parse version from tag
+        id: version
+        run: |
+          TAG="${{ github.ref_name }}"
+          VERSION="${TAG#v}"
+          echo "full=${VERSION}" >> $GITHUB_OUTPUT
+
+          # Split into parts
+          BASE="${VERSION%%-*}"
+          STAGE="${VERSION#*-}"
+          [ "$BASE" = "$VERSION" ] && STAGE="" || true
+
+          MAJOR=$(echo "$BASE" | cut -d. -f1)
+          MINOR=$(echo "$BASE" | cut -d. -f2)
+          PATCH=$(echo "$BASE" | cut -d. -f3)
+
+          echo "major=${MAJOR}" >> $GITHUB_OUTPUT
+          echo "minor=${MINOR}" >> $GITHUB_OUTPUT
+          echo "patch=${PATCH}" >> $GITHUB_OUTPUT
+          echo "stage=${STAGE}" >> $GITHUB_OUTPUT
+
+          # shields.io escaping: replace - with --
+          BADGE=$(echo "$VERSION" | sed 's/-/--/g')
+          echo "badge=${BADGE}" >> $GITHUB_OUTPUT
+
+      - name: Update include/version.h
+        run: |
+          V="${{ steps.version.outputs.full }}"
+          MAJOR="${{ steps.version.outputs.major }}"
+          MINOR="${{ steps.version.outputs.minor }}"
+          PATCH="${{ steps.version.outputs.patch }}"
+
+          sed -i "s|#define PICOKERNEL_VERSION_MAJOR.*|#define PICOKERNEL_VERSION_MAJOR ${MAJOR}|" include/version.h
+          sed -i "s|#define PICOKERNEL_VERSION_MINOR.*|#define PICOKERNEL_VERSION_MINOR ${MINOR}|" include/version.h
+          sed -i "s|#define PICOKERNEL_VERSION_PATCH.*|#define PICOKERNEL_VERSION_PATCH ${PATCH}|" include/version.h
+          sed -i "s|#define PICOKERNEL_VERSION_STR.*|#define PICOKERNEL_VERSION_STR   \"${V}\"|" include/version.h
+
+      - name: Update docs/Doxyfile
+        run: |
+          sed -i "s|^PROJECT_NUMBER.*|PROJECT_NUMBER          = ${{ steps.version.outputs.full }}|" docs/Doxyfile
+
+      - name: Update README.md version badge
+        run: |
+          BADGE="${{ steps.version.outputs.badge }}"
+          sed -i "s|img.shields.io/badge/version-[^)]*|img.shields.io/badge/version-${BADGE}-orange|" README.md
+
+      - name: Commit version bump
+        run: |
+          git config user.name "PicoKernel Bot"
+          git config user.email "picokernel@protonmail.com"
+          git add include/version.h docs/Doxyfile README.md
+          git diff --cached --quiet && echo "Nothing to commit" && exit 0
+          git commit -m "chore: bump version to ${{ steps.version.outputs.full }}"
+          git push origin HEAD

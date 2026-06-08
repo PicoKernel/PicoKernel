@@ -1,0 +1,160 @@
+/* SPDX-License-Identifier: CC-BY-SA-4.0
+ * SPDX-FileCopyrightText: 2025 PicoKernel Contributors
+ */
+
+/**
+ * @file architecture_overview.dox
+ * @author PicoKernel Project
+ * @date 07-06-2026
+ * @brief Architecture overview, layering model, and enforcement policy.
+ */
+
+/**
+ * @page arch_overview Architecture Overview
+ *
+ * **← Back** @ref index "Developer Wiki"
+ * | **Next →** @ref milestones "Milestones & Roadmap"
+ *
+ * ---
+ *
+ * ## Quick Links
+ *
+ * | | |
+ * |-|-|
+ * | @ref index "Developer Wiki" | @ref milestones "Milestones" |
+ * | @ref workflow_contrib "Contributing" | @ref security_principles "Security Principles" |
+ * | @ref technical_docs "Technical Docs" | @ref kernel "Kernel API" |
+ *
+ * ---
+ *
+ * ## Overview
+ *
+ * PicoKernel enforces a strict layer architecture. The **kernel is the
+ * architectural center** every cross-layer request flows through it.
+ * These rules are enforced at review time and are not negotiable.
+ *
+ * ## Architecture Diagrams
+ *
+ * ### Current Architecture (M10 Target)
+ *
+ * The diagram below reflects the architecture as it will stand at M10 the v1.0.0 milestone. All subsystems shown are either complete or actively in progress.
+ *
+ * @image html architecture-m10.svg "PicoKernel Architecture - M10 Target" width=70%
+ *
+ * ### Long-Term Vision
+ *
+ * The diagram below shows the planned post-v1 architecture, including
+ * additional interface types, expanded module coverage, and hardware
+ * targets beyond the current Pico 2W.
+ *
+ * @image html architecture-future.svg "PicoKernel Architecture — Long-Term Vision" width=100%
+ *
+ * ---
+ *
+ * ## Layer Model
+ *
+ * | Layer | Responsibility | May call |
+ * |-------|---------------|----------|
+ * | **Interfaces** | Outward-facing: web terminal, serial shell | Kernel APIs only (including scheduler) |
+ * | **Modules** | Application subsystems: NFC, WiFi, packet capture | Kernel APIs only |
+ * | **Kernel** | Allocator, scheduler, IPC, panic, state machine | Any required layer |
+ * | **Drivers** | Thin hardware wrappers, zero business logic | Pico SDK only |
+ * | **Pico SDK** | HAL: clocks, DMA, hardware registers | Hardware |
+ *
+ * ### Why this matters
+ *
+ * The layering is not just organizational, it is a **security and correctness boundary**.
+ * A module cannot reach hardware directly. An interface cannot bypass the scheduler.
+ * Driver code stays minimal and auditable. The kernel is the single choke point for
+ * all hardware state changes. See @ref security_principles for the security argument.
+ *
+ * ---
+ *
+ * ## Architectural Rules
+ *
+ * These rules are enforced at review time. A PR that violates any rule
+ * **will not merge** until the violation is corrected.
+ *
+ * | # | Rule |
+ * |---|------|
+ * | 1 | Interfaces never call Drivers directly. |
+ * | 2 | Interfaces interact with the system through Kernel APIs only including scheduler registration. |
+ * | 3 | Modules never call Drivers directly. |
+ * | 4 | Modules interact with the system through Kernel APIs only. |
+ * | 5 | Modules register their tasks with the Kernel Scheduler. |
+ * | 6 | The Kernel Scheduler dispatches registered tasks. |
+ * | 7 | The Kernel has exclusive ownership of Driver access. |
+ * | 8 | Drivers call Pico SDK functions only, no business logic permitted. |
+ * | 9 | The Pico SDK is the only path to hardware registers. |
+ * | 10 | The Kernel is the architectural center. No other cross-layer channels exist. |
+ * | 11 | Architecture violations are review blockers. No exceptions. |
+ *
+ * ---
+ *
+ * ## Architecture Philosophy
+ *
+ * ### The kernel-as-hub model
+ *
+ * Most embedded architectures let components talk to each other directly.
+ * PicoKernel does not. Every inter-layer communication passes through the kernel.
+ * This is intentional it means the kernel always has full visibility of system
+ * state, and there is one place to audit, one place to secure, one place to debug.
+ *
+ * ### Drivers are thin
+ *
+ * A driver in PicoKernel does one thing: translate a kernel request into a Pico SDK
+ * call. It holds no state. It makes no decisions. Business logic in a driver is a
+ * review blocker. This keeps drivers auditable, testable, and replaceable.
+ *
+ * ### Modules are isolated
+ *
+ * A module registers tasks with the scheduler and communicates via IPC. It does
+ * not know what other modules exist, what drivers are loaded, or what hardware
+ * is present. This isolation is what allows modules to be added, removed, and
+ * tested independently.
+ *
+ * ### Panic over corruption
+ *
+ * When a kernel invariant is violated, PicoKernel panics. There is no attempt
+ * to recover from a state the kernel cannot verify. A visible panic with a
+ * source location is always preferable to silent memory corruption.
+ *
+ * ---
+ *
+ * ## Subsystem Initials
+ *
+ * Used consistently in branch names, file prefixes, and Doxygen group names.
+ *
+ * | Initial | Subsystem |
+ * |---------|-----------|
+ * | `k` | Kernel |
+ * | `d` | Drivers |
+ * | `m` | Modules |
+ * | `i` | Interface |
+ *
+ * ---
+ *
+ * ## API Reference by Layer
+ *
+ * | Group | Contents |
+ * |-------|----------|
+ * | @ref kernel | Allocator, scheduler, IPC, panic, init, state machine |
+ * | @ref drivers | UART, SPI, I2C, GPIO, timer |
+ * | @ref modules | NFC, sub-GHz, HID, UI, IR, storage |
+ * | @ref interface | Web terminal, serial shell |
+ *
+ * ---
+ *
+ * ## Related Pages
+ *
+ * | | |
+ * |-|-|
+ * | @ref security_principles "Security Principles" | Layering as a security boundary |
+ * | @ref coding_style "Coding Style" | Naming and structure conventions by layer |
+ * | @ref technical_docs "Technical Docs" | API reference for each layer |
+ *
+ * ---
+ *
+ * **← Back** @ref index "Developer Wiki"
+ * | **Next →** @ref milestones "Milestones & Roadmap"
+ */

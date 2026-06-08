@@ -1,3 +1,5 @@
+# SPDX-FileCopyrightText: 2025 PicoKernel Contributors
+# SPDX-License-Identifier: GPL-3.0-or-later
 #!/usr/bin/env python3
 import re
 import sys
