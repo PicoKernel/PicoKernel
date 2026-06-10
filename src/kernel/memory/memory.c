@@ -28,9 +28,9 @@
  *
  * @todo [Kernel] [Enhancement] Implement calloc & realloc.
  * @todo [Kernel] [Enhancement] Implement automatic HEAP_SIZE calibration.
- * @todo [Kernel] [Perf] Implement backward coalescing in kfree().
+ * @todo [Kernel] [Perf] Implement backward coalescing in k_free().
  * @todo [Kernel] [Enhancement] Implement magic value to check header integrity and double-free and bad pointer.
- * @todo [Kernel] [Enhancement] Implement MPU regions for heap after allocator_init and mark kernel as privileged.
+ * @todo [Kernel] [Enhancement] Implement MPU regions for heap after k_alloc_init and mark kernel as privileged.
  */
 
 #include "memory.h"
@@ -59,8 +59,8 @@ typedef struct block_header {
     struct block_header *next; /**< Pointer to the next block in the heap list. */
 } block_header_t;
 
-static block_header_t *heap_head = NULL;                    /** Pointer to the first block in the heap. Anchor of the free list. */
-static uint8_t __attribute__((aligned(8))) heap[HEAP_SIZE]; /** Static heap buffer owned exclusively by the allocator. */
+static block_header_t *k__heap_head = NULL;                    /** Pointer to the first block in the heap. Anchor of the free list. */
+static uint8_t __attribute__((aligned(8))) k__heap[HEAP_SIZE]; /** Static heap buffer owned exclusively by the allocator. */
 
 /**
  * @brief Aligns a size value to the nearest ALIGNMENT boundary.
@@ -69,7 +69,7 @@ static uint8_t __attribute__((aligned(8))) heap[HEAP_SIZE]; /** Static heap buff
  *
  * @return Size rounded up to the nearest multiple of ALIGNMENT.
  */
-static inline size_t align(size_t size)
+static inline size_t k__align(size_t size)
 {
     return (size + ALIGNMENT - 1) & ~(ALIGNMENT - 1);
 }
@@ -86,12 +86,12 @@ static inline size_t align(size_t size)
  *
  * @return Nothing.
  */
-void allocator_init(void)
+void k_alloc_init(void)
 {
-    heap_head = (block_header_t *)heap;
-    BLOCK_SET_SIZE(heap_head, (size_t)HEAP_SIZE - sizeof(block_header_t) - sizeof(uint64_t));
-    BLOCK_SET_FREE(heap_head);
-    heap_head->next = NULL;
+    k__heap_head = (block_header_t *)k__heap;
+    BLOCK_SET_SIZE(k__heap_head, (size_t)HEAP_SIZE - sizeof(block_header_t) - sizeof(uint64_t));
+    BLOCK_SET_FREE(k__heap_head);
+    k__heap_head->next = NULL;
 }
 
 /**
@@ -109,13 +109,13 @@ void allocator_init(void)
  * @return NULL if size is 0, exceeds HEAP_SIZE, or no suitable
  *         block is available.
  */
-void *kalloc(size_t size)
+void *k_alloc(size_t size)
 {
     if (size == 0 || size > (size_t)HEAP_SIZE) {
         return NULL;
     }
-    size = align(size);
-    block_header_t *current = heap_head;
+    size = k__align(size);
+    block_header_t *current = k__heap_head;
     while (current != NULL) {
         if (BLOCK_IS_FREE(current) && BLOCK_SIZE(current) >= size) {
             if (BLOCK_SIZE(current) == size) {
@@ -155,16 +155,16 @@ void *kalloc(size_t size)
  * panic if corruption is detected.
  *
  * @param[in] ptr Pointer to the payload of a block previously
- *                returned by kalloc(). Passing NULL is safe and
+ *                returned by k_alloc(). Passing NULL is safe and
  *                has no effect.
  *
- * @warning Passing a pointer not returned by kalloc() is undefined
+ * @warning Passing a pointer not returned by k_alloc() is undefined
  *          behaviour.
  * @warning Double-free is not detected and will corrupt the heap.
  *
  * @return Nothing.
  */
-void kfree(void *ptr)
+void k_free(void *ptr)
 {
     if (ptr == NULL) {
         return;
@@ -172,7 +172,7 @@ void kfree(void *ptr)
     block_header_t *header = (block_header_t *)ptr - 1;
     const uint64_t *canary = (const uint64_t *)((uint8_t *)ptr + BLOCK_SIZE(header));
     if (*canary != CANARY) {
-        kernel_panic("Allocator: Heap corruption detected!");
+        k_panic("Allocator: Heap corruption detected!");
     }
     BLOCK_SET_FREE(header);
     while (header->next != NULL && BLOCK_IS_FREE(header->next)) {
@@ -194,9 +194,9 @@ void kfree(void *ptr)
  *
  * @return Nothing.
  */
-void kdump(void)
+void k_dump(void)
 {
-    block_header_t *current = heap_head;
+    block_header_t *current = k__heap_head;
     int total_blocks = 0;
     int used_blocks = 0;
     int free_blocks = 0;

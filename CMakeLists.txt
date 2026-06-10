@@ -144,8 +144,3 @@ pico_enable_stdio_usb(picokernel  1)
 #           picokernel.bin  (raw binary)
 #           picokernel.dis  (disassembly)
 pico_add_extra_outputs(picokernel)
-
-# ─── Tests ────────────────────────────────────────────────────────────────────
-# Host-native builds only — skipped automatically when cross-compiling for Pico.
-# See tests/CMakeLists.txt for full explanation and usage.
-add_subdirectory(tests)

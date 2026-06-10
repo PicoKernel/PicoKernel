@@ -23,7 +23,8 @@
 #include "pico/time.h"
 #include <stdint.h>
 
-void timer_driver_init(void) {
+void d_timer_init(void)
+{
 }
 
 /**
@@ -31,8 +32,9 @@ void timer_driver_init(void) {
  *
  * Direct wrapper over pico-sdk's timer API.
  */
-uint32_t timer_driver_now_ms(void) {
-  return to_ms_since_boot(get_absolute_time());
+uint32_t d_timer_now_ms(void)
+{
+    return to_ms_since_boot(get_absolute_time());
 }
 
 /**
@@ -40,6 +42,7 @@ uint32_t timer_driver_now_ms(void) {
  *
  * Direct wrapper over pico-sdk's timer API.
  */
-uint64_t timer_driver_now_us(void) {
-  return to_us_since_boot(get_absolute_time());
+uint64_t d_timer_now_us(void)
+{
+    return to_us_since_boot(get_absolute_time());
 }

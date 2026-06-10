@@ -26,8 +26,8 @@
  * - Time values must not be used to make critical decisions without validation.
  */
 
-#ifndef KERNEL_TIME_H
-#define KERNEL_TIME_H
+#ifndef PICOKERNEL_KERNEL_TIME_H
+#define PICOKERNEL_KERNEL_TIME_H
 
 #include <stdbool.h>
 #include <stdint.h>
@@ -43,7 +43,7 @@
  *
  * @return Nothing.
  */
-void kernel_time_init(void);
+void k_time_init(void);
 
 /**
  * @brief Gives the uptime of kernel in milliseconds.
@@ -53,7 +53,7 @@ void kernel_time_init(void);
  *
  * @note uint32_t wraps around in ~49 days.
  */
-uint32_t kernel_uptime_ms(void);
+uint32_t k_uptime_ms(void);
 
 /**
  * @brief Gives the uptime of kernel in microseconds.
@@ -61,21 +61,21 @@ uint32_t kernel_uptime_ms(void);
  * @return uint64_t time elapsed since last boot.
  *
  */
-uint64_t kernel_uptime_us(void);
+uint64_t k_uptime_us(void);
 
 /**
  * @brief Check if a duration has elapsed since a given timestamp
  *
- * @param[in] timestamp Start time (from kernel_uptime_ms())
+ * @param[in] timestamp Start time (from k_uptime_ms())
  * @param[in] duration_ms Duration to check in milliseconds
  *
  * @return true if the duration has elapsed, false otherwise.
  *
  * @note
  * - Uses unsigned subtraction to handle timer overflow safely
- * - timestamp must originate from kernel_uptime_ms()
+ * - timestamp must originate from k_uptime_ms()
  * - Caller must ensure timestamp is not user controlled.
  */
-bool kernel_time_elapsed(uint32_t timestamp, uint32_t duration_ms);
+bool k_time_elapsed(uint32_t timestamp, uint32_t duration_ms);
 
 #endif

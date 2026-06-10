@@ -27,27 +27,36 @@
  */
 
 #include "time.h"
-#include "../../drivers/hw_timer/hw_timer.h"
+#include "hw_timer/hw_timer.h"
 #include <stdbool.h>
 
 /**
  * Initializes the kernel time drivers.
  */
-void kernel_time_init(void) { timer_driver_init(); }
+void k_time_init(void)
+{
+    d_timer_init();
+}
 
 /**
  * Returns system uptime in milliseconds.
  *
  * Direct wrapper over timer driver.
  */
-uint32_t kernel_uptime_ms(void) { return timer_driver_now_ms(); }
+uint32_t k_uptime_ms(void)
+{
+    return d_timer_now_ms();
+}
 
 /**
  * Returns system uptime in microseconds.
  *
  * Direct wrapper over timer driver.
  */
-uint64_t kernel_uptime_us(void) { return timer_driver_now_us(); }
+uint64_t k_uptime_us(void)
+{
+    return d_timer_now_us();
+}
 
 /**
  * Checks if a duration has elapsed since a given timestamp.
@@ -55,8 +64,9 @@ uint64_t kernel_uptime_us(void) { return timer_driver_now_us(); }
  * Uses unsigned subtraction to remain correct across
  * uint32_t wraparound.
  *
- * @note timestamp must originate from kernel_uptime_ms()
+ * @note timestamp must originate from k_uptime_ms()
  */
-bool kernel_time_elapsed(uint32_t timestamp, uint32_t duration_ms) {
-  return (kernel_uptime_ms() - timestamp) >= duration_ms;
+bool k_time_elapsed(uint32_t timestamp, uint32_t duration_ms)
+{
+    return (k_uptime_ms() - timestamp) >= duration_ms;
 }

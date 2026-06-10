@@ -23,7 +23,7 @@
  */
 
 #include "state.h"
-#include "../time/time.h"
+#include "time/time.h"
 
 /**
  * Internal kernel state.
@@ -31,25 +31,35 @@
  * Statically allocated and confined to this file to prevent external
  * modification.
  */
-static kernel_state_t state = {
+static kernel_state_t k__state = {
     .uptime_ms = 0,
     .commands_executed = 0,
 };
+
 /**
  * Returns the current kernel state.
  *
  * Exposes internal state as read-only.
  */
-const kernel_state_t *kernel_get_state(void) { return &state; }
+const kernel_state_t *k_state_get(void)
+{
+    return &k__state;
+}
 
 /**
  * Updates kernel uptime.
  *
  * Value is obtained from the kernel time subsystem.
  */
-void kernel_state_uptime(void) { state.uptime_ms = kernel_uptime_ms(); }
+void k_state_uptime(void)
+{
+    k__state.uptime_ms = k_uptime_ms();
+}
 
 /**
  * Records a command execution event.
  */
-void kernel_state_record_command(void) { state.commands_executed++; }
+void k_state_record_command(void)
+{
+    k__state.commands_executed++;
+}

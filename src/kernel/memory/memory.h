@@ -27,8 +27,8 @@
  * - Does not check for double-free (yet)
  */
 
-#ifndef MEMORY_H
-#define MEMORY_H
+#ifndef PICOKERNEL_KERNEL_MEMORY_H
+#define PICOKERNEL_KERNEL_MEMORY_H
 
 #include <stdint.h>
 #include <stddef.h>
@@ -44,7 +44,7 @@
  *
  * @return Nothing.
  */
-void allocator_init(void);
+void k_alloc_init(void);
 
 /**
  * @brief Allocates a memory block of requested size from the static pool.
@@ -58,13 +58,13 @@ void allocator_init(void);
  * @return NULL if size is 0, exceeds HEAP_SIZE, or heap is full.
  *
  */
-void *kalloc(size_t size);
+void *k_alloc(size_t size);
 
 /**
  * @brief Marks the given memory block as free.
  *
  * @param[in] ptr Pointer to the payload of a block previously returned by
- * kalloc(). Passing NULL is safe and has no effect.
+ * k_alloc(). Passing NULL is safe and has no effect.
  *
  * @warning Triggers kernel_panic on heap corruption detection.
  * @warning Double-free is not detected (yet) and will corrupt the heap.
@@ -73,7 +73,7 @@ void *kalloc(size_t size);
  *
  * @return Nothing.
  */
-void kfree(void *);
+void k_free(void *);
 
 #ifdef KERNEL_DEBUG
 /**
@@ -84,7 +84,6 @@ void kfree(void *);
  *
  * @return Nothing.
  */
-void kdump(void);
+void k_dump(void);
 #endif
 #endif
-

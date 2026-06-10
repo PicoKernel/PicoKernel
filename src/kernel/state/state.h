@@ -22,8 +22,8 @@
  * - Direct modification is prevented by design.
  */
 
-#ifndef STATE_H
-#define STATE_H
+#ifndef PICOKERNEL_KERNEL_STATE_H
+#define PICOKERNEL_KERNEL_STATE_H
 #include <stdbool.h>
 #include <stdint.h>
 
@@ -36,10 +36,9 @@
  * components.
  *
  */
-typedef struct state {
-  uint32_t uptime_ms;         /**< System uptime in milliseconds.*/
-  uint32_t commands_executed; /**< Total number of commands processed by the
-                                 kernel.*/
+typedef struct {
+    uint32_t uptime_ms;         /**< System uptime in milliseconds.*/
+    uint32_t commands_executed; /**< Total number of commands processed by the kernel.*/
 } kernel_state_t;
 
 /**
@@ -49,7 +48,7 @@ typedef struct state {
  *
  * @note The pointer remains valid for the lifetime of the system.
  */
-const kernel_state_t *kernel_get_state(void);
+const kernel_state_t *k_state_get(void);
 
 /**
  * @brief Updates kernel uptime.
@@ -58,13 +57,13 @@ const kernel_state_t *kernel_get_state(void);
  *
  * @note Must be called after kernel initialization.
  */
-void kernel_state_uptime(void);
+void k_state_uptime(void);
 
 /**
  * @brief Records a command execution event.
  *
  * @return Nothing.
  */
-void kernel_state_record_command(void);
+void k_state_record_command(void);
 
 #endif
