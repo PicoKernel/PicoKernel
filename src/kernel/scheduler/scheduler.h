@@ -30,8 +30,8 @@
  * - Scheduler validates NULL task entries.
  * - Input names are not sanitized by this module.
  */
-#ifndef SCHEDULER_H
-#define SCHEDULER_H
+#ifndef PICOKERNEL_KERNEL_SCHEDULER_H
+#define PICOKERNEL_KERNEL_SCHEDULER_H
 
 #include <stddef.h>
 
@@ -42,10 +42,10 @@
  * be handled after execution.
  */
 typedef enum {
-  TASK_OK,    /**< Task executed successfully.*/
-  TASK_YIELD, /**< Task voluntarily yielded execution.*/
-  TASK_DONE,  /**< Task completed permanently.*/
-  TASK_ERROR  /**< Task encountered an unrecoverable error.*/
+    TASK_OK,    /**< Task executed successfully.*/
+    TASK_YIELD, /**< Task voluntarily yielded execution.*/
+    TASK_DONE,  /**< Task completed permanently.*/
+    TASK_ERROR  /**< Task encountered an unrecoverable error.*/
 } task_status_t;
 
 /**
@@ -61,11 +61,11 @@ typedef task_status_t (*task_fn_t)(void);
  * Managed exclusively by the scheduler.
  */
 typedef enum {
-  TASK_READY,     /**< Eligible for execution.*/
-  TASK_RUNNING,   /**< Currently executing.*/
-  TASK_BLOCKED,   /**< Reserved for future use.*/
-  TASK_COMPLETED, /**< Finished execution permanently.*/
-  TASK_FAILED     /**< Terminated due to an error.*/
+    TASK_READY,     /**< Eligible for execution.*/
+    TASK_RUNNING,   /**< Currently executing.*/
+    TASK_BLOCKED,   /**< Reserved for future use.*/
+    TASK_COMPLETED, /**< Finished execution permanently.*/
+    TASK_FAILED     /**< Terminated due to an error.*/
 } task_state_t;
 
 /**
@@ -79,10 +79,10 @@ typedef enum {
  * - Must not be modified by modules directly.
  */
 typedef struct {
-  int id;             /**< Unique task identifier.*/
-  const char *name;   /**< Human-readable task name.*/
-  task_state_t state; /**< Current scheduler state.*/
-  task_fn_t entry;    /**< Task entry function.*/
+    int id;             /**< Unique task identifier.*/
+    const char *name;   /**< Human-readable task name.*/
+    task_state_t state; /**< Current scheduler state.*/
+    task_fn_t entry;    /**< Task entry function.*/
 } task_t;
 
 /**
@@ -96,7 +96,7 @@ typedef struct {
  *
  * @return Nothing.
  */
-void scheduler_init(size_t size);
+void k_scheduler_init(size_t size);
 
 /**
  * @brief Registers a task.
@@ -108,7 +108,7 @@ void scheduler_init(size_t size);
  *
  * @return Nothing.
  */
-void scheduler_register(const char *name, task_fn_t task);
+void k_scheduler_register(const char *name, task_fn_t task);
 
 /**
  * @brief Executes one scheduler cycle.
@@ -120,6 +120,6 @@ void scheduler_register(const char *name, task_fn_t task);
  *
  * @return Nothing.
  */
-void scheduler_run_once(void);
+void k_scheduler_run_once(void);
 
 #endif

@@ -39,8 +39,8 @@
  * @todo [Kernel] [Enhancement] Introduce a scheduler result/status API for task registration.
  */
 #include "scheduler.h"
-#include "../memory/memory.h"
-#include "../panic/panic.h"
+#include "memory/memory.h"
+#include "panic/panic.h"
 #include <stdio.h>
 
 /**
@@ -49,49 +49,50 @@
  * Allocated during scheduler initialization and owned
  * exclusively by this module.
  */
-static task_t *tasks = NULL;
+static task_t *k__tasks = NULL;
 
 /**
  * Number of active tasks currently managed by the scheduler.
  */
-static size_t task_count = 0;
+static size_t k__task_count = 0;
 
 /**
  * Maximum number of task slots available in the task table.
  */
-static size_t task_limit = 0;
+static size_t k__task_limit = 0;
 
 /**
  * Next task identifier to be assigned.
  *
  * Incremented whenever a new task is registered.
  */
-static int task_id_ctr = 1;
+static int k__task_id_ctr = 1;
 
 /**
  * Indicates whether task table compaction is required.
  *
  * Set when tasks enter COMPLETED or FAILED states.
  */
-static int needs_compact = 0;
+static int k__needs_compact = 0;
 
 /**
  * @details
- * Triggers kernel_panic if kalloc returns NULL as the scheduler cannot operate
+ * Triggers k_panic if k_alloc returns NULL as the scheduler cannot operate
  * without a valid task table.
  *
  * @note This function is intended to be called once during kernel
  *       initialization.
  */
-void scheduler_init(size_t size) {
-  tasks = kalloc(sizeof(task_t) * size);
-  if (tasks == NULL) {
-    kernel_panic("scheduler: Failed to allocate task array");
-  }
-  task_limit = size;
-  task_count = 0;
-  task_id_ctr = 1;
-  needs_compact = 0;
+void k_scheduler_init(size_t size)
+{
+    k__tasks = k_alloc(sizeof(task_t) * size);
+    if (k__tasks == NULL) {
+        k_panic("scheduler: Failed to allocate task array");
+    }
+    k__task_limit = size;
+    k__task_count = 0;
+    k__task_id_ctr = 1;
+    k__needs_compact = 0;
 }
 
 /**
@@ -109,29 +110,30 @@ void scheduler_init(size_t size) {
  * @warning The caller is responsible for ensuring that the task name remains
  *          valid for the lifetime of the task.
  */
-void scheduler_register(const char *name, task_fn_t task) {
-  if (tasks == NULL) {
-    kernel_panic("scheduler: scheduler_register() called before scheduler_init()");
-  }
-  if (name == NULL) {
-    printf("scheduler: Cannot register task with NULL name\n");
-    return;
-  }
-  if (task == NULL) {
-    printf("scheduler: Cannot register NULL task\n");
-    return;
-  }
-  if (task_count >= task_limit) {
-    printf("scheduler: Task limit reached\n");
-    return;
-  }
-  task_t *new_task = &tasks[task_count];
-  new_task->id = task_id_ctr++;
-  new_task->name = name;
-  new_task->state = TASK_READY;
-  new_task->entry = task;
+void k_scheduler_register(const char *name, task_fn_t task)
+{
+    if (k__tasks == NULL) {
+        k_panic("scheduler: k_scheduler_register() called before k_scheduler_init()");
+    }
+    if (name == NULL) {
+        printf("scheduler: Cannot register task with NULL name\n");
+        return;
+    }
+    if (task == NULL) {
+        printf("scheduler: Cannot register NULL task\n");
+        return;
+    }
+    if (k__task_count >= k__task_limit) {
+        printf("scheduler: Task limit reached\n");
+        return;
+    }
+    task_t *new_task = &k__tasks[k__task_count];
+    new_task->id = k__task_id_ctr++;
+    new_task->name = name;
+    new_task->state = TASK_READY;
+    new_task->entry = task;
 
-  task_count++;
+    k__task_count++;
 }
 
 /**
@@ -150,71 +152,74 @@ void scheduler_register(const char *name, task_fn_t task) {
  * @note Yielded tasks currently behave the same as successfully completed
  *       iterations.
  *
- * @note task_count is snapshotted at the start of the execution loop.
+ * @note k__task_count is snapshotted at the start of the execution loop.
  *       Tasks registered mid-cycle by a running task are deferred to the next
  *       scheduler cycle.
  */
-void scheduler_run_once(void) {
-  if (tasks == NULL || task_count == 0) {
-    return;
-  }
-
-  const size_t cycle_task_count = task_count;
-
-  for (size_t i = 0; i < cycle_task_count; i++) {
-    task_t *task = &tasks[i];
-
-    if (task->state != TASK_READY)
-      continue;
-    if (task->entry == NULL) {
-      printf("scheduler: task [%d] '%s' has NULL entry, Marking FAILED\n",
-             task->id, task->name);
-      task->state = TASK_FAILED;
-      needs_compact = 1;
-      continue;
+void k_scheduler_run_once(void)
+{
+    if (k__tasks == NULL || k__task_count == 0) {
+        return;
     }
 
-    task->state = TASK_RUNNING;
-    task_status_t result = task->entry();
-    switch (result) {
+    const size_t cycle_k__task_count = k__task_count;
 
-    case TASK_OK:
-    case TASK_YIELD:
-      task->state = TASK_READY;
-      break;
+    for (size_t i = 0; i < cycle_k__task_count; i++) {
+        task_t *task = &k__tasks[i];
 
-    case TASK_DONE:
-      task->state = TASK_COMPLETED;
-      printf("scheduler: task [%d] '%s' completed\n", task->id, task->name);
-      needs_compact = 1;
-      break;
+        if (task->state != TASK_READY) {
+            continue;
+        }
+        if (task->entry == NULL) {
+            printf("scheduler: task [%d] '%s' has NULL entry, Marking FAILED\n",
+                   task->id, task->name);
+            task->state = TASK_FAILED;
+            k__needs_compact = 1;
+            continue;
+        }
 
-    case TASK_ERROR:
-      task->state = TASK_FAILED;
-      printf("scheduler: task [%d] '%s' failed\n", task->id, task->name);
-      needs_compact = 1;
-      break;
+        task->state = TASK_RUNNING;
+        task_status_t result = task->entry();
+        switch (result) {
 
-    default:
-      task->state = TASK_FAILED;
-      printf("scheduler: task [%d] '%s' returned unknown status\n", task->id,
-             task->name);
-      needs_compact = 1;
-      break;
+        case TASK_OK:
+        case TASK_YIELD:
+            task->state = TASK_READY;
+            break;
+
+        case TASK_DONE:
+            task->state = TASK_COMPLETED;
+            printf("scheduler: task [%d] '%s' completed\n", task->id, task->name);
+            k__needs_compact = 1;
+            break;
+
+        case TASK_ERROR:
+            task->state = TASK_FAILED;
+            printf("scheduler: task [%d] '%s' failed\n", task->id, task->name);
+            k__needs_compact = 1;
+            break;
+
+        default:
+            task->state = TASK_FAILED;
+            printf("scheduler: task [%d] '%s' returned unknown status\n", task->id,
+                   task->name);
+            k__needs_compact = 1;
+            break;
+        }
     }
-  }
 
-  if (!needs_compact)
-    return;
+    if (!k__needs_compact) {
+        return;
+    }
 
-  size_t free_slot = 0;
-  for (size_t i = 0; i < task_count; i++) {
-    if (tasks[i].state == TASK_COMPLETED || tasks[i].state == TASK_FAILED)
-      continue;
-    tasks[free_slot] = tasks[i];
-    free_slot++;
-  }
-  task_count = free_slot;
-  needs_compact = 0;
+    size_t free_slot = 0;
+    for (size_t i = 0; i < k__task_count; i++) {
+        if (k__tasks[i].state == TASK_COMPLETED || k__tasks[i].state == TASK_FAILED) {
+            continue;
+        }
+        k__tasks[free_slot] = k__tasks[i];
+        free_slot++;
+    }
+    k__task_count = free_slot;
+    k__needs_compact = 0;
 }
-

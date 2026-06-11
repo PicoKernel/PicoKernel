@@ -25,8 +25,8 @@
  *
  */
 
-#ifndef HW_TIMER_H
-#define HW_TIMER_H
+#ifndef PICOKERNEL_DRIVERS_HW_TIMER_H
+#define PICOKERNEL_DRIVERS_HW_TIMER_H
 
 #include <stdint.h>
 
@@ -39,20 +39,20 @@
  *
  * @return Nothing.
  */
-void timer_driver_init(void);
+void d_timer_init(void);
 
 /**
  * @brief Gives the time elapsed in ms since boot from hardware timer.
  *
  * @return uint32_t time elapsed from timer in miliseconds.
  */
-uint32_t timer_driver_now_ms(void);
+uint32_t d_timer_now_ms(void);
 
 /**
  * @brief Gives the time elapsed in us since boot from hardware timer.
  *
  * @return uint64_t time elapsed from timer in microseconds.
  */
-uint64_t timer_driver_now_us(void);
+uint64_t d_timer_now_us(void);
 
 #endif

@@ -25,8 +25,8 @@
  * - Caller is responsible for pointer validation.
  */
 
-#ifndef PANIC_H
-#define PANIC_H
+#ifndef PICOKERNEL_KERNEL_PANIC_H
+#define PICOKERNEL_KERNEL_PANIC_H
 
 #include <stdnoreturn.h>
 /**
@@ -37,6 +37,6 @@
  *
  * @warning Neither returns nor waits for the ISRs.
  */
-noreturn void kernel_panic(const char *reason);
+noreturn void k_panic(const char *reason);
 
 #endif

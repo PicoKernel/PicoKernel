@@ -1,5 +1,9 @@
 .env
-CMakeLists.*
 **/build/
 .vscode/
 docs/generated/
+tests/
+.clang-*
+.pre-commit-config.*
+cppcheck-suppressions.txt
+compile_commands.json

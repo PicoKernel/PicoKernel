@@ -22,13 +22,15 @@
 #include "pico/stdlib.h"
 #include <stdio.h>
 
-noreturn void kernel_panic(const char *reason) {
-  save_and_disable_interrupts();
-  if (reason == NULL)
-    printf("KERNEL PANIC: (no reason passed)\n");
-  else
-    printf("KERNEL PANIC: %s\n", reason);
-  while (1) {
-    tight_loop_contents();
-  };
+noreturn void k_panic(const char *reason)
+{
+    save_and_disable_interrupts();
+    if (reason == NULL) {
+        printf("KERNEL PANIC: (no reason passed)\n");
+    } else {
+        printf("KERNEL PANIC: %s\n", reason);
+    }
+    while (1) {
+        tight_loop_contents();
+    };
 }
