@@ -22,7 +22,7 @@ Permission is NOT granted to:
   explicit prior written permission
 
 To request permission for use of PicoKernel branding assets, contact
-picokernel@protonmail.com or open an issue at
+picokernel@modprobe.dev or open an issue at
 https://codeberg.org/PicoKernel/PicoKernel with the subject
 "Branding Usage Request".
 

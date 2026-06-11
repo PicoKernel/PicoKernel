@@ -246,7 +246,7 @@ Future revisions plan support for additional hardware targets beyond the Pico 2W
 
 - Project logos and branding assets may not be reproduced, distributed, or used
   without explicit written permission from the copyright holders.
-- To request permission, contact <picokernel@protonmail.com> or open an issue on [Codeberg](https://codeberg.org/PicoKernel/PicoKernel/issues).
+- To request permission, contact <picokernel@modprobe.dev> or open an issue on [Codeberg](https://codeberg.org/PicoKernel/PicoKernel/issues).
 
 See [`LICENSES/GPL-3.0-or-later`](LICENSES/GPL-3.0-or-later.txt) for the full source license.
 See [`LICENSES/CC-BY-SA-4.0`](LICENSES/CC-BY-SA-4.0.txt) for the full documentation license.
