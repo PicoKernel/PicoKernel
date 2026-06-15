@@ -34,42 +34,51 @@
 #include <stddef.h>
 
 /**
- * @brief Initializes the memory allocator. Must be called before any other
- *        function in this header.
+ * @brief Initialise the memory allocator subsystem.
  *
- * @note Takes a fixed size static pool of memory.
+ * @details
+ * Sets up the heap by placing a single free block spanning the entire
+ * static heap buffer. Must be called before any other allocator function.
  *
- * @warning Calling any other function before this results in
- *          undefined behavior.
+ * @note Takes a fixed-size static pool, no dynamic sizing.
+ *
+ * @warning Calling more than once resets the heap and leaks all prior allocations.
+ *
+ * @warning Calling any other allocator function before this is undefined behaviour.
  *
  * @return Nothing.
  */
 void k_alloc_init(void);
 
 /**
- * @brief Allocates a memory block of requested size from the static pool.
+ * @brief Allocate a block of memory from the static heap pool.
  *
- * @param[in] size Number of bytes to allocate. Will be rounded up to the
- * nearest ALIGNMENT boundary.
+ * @details
+ * Searches the free list using a first-fit strategy. Splits the block if the
+ * remainder is large enough to form a new free block. Writes a canary at the
+ * end of the payload to detect overflow at free time. Does not zero the block.
  *
- * @note Does not zero out the block.
+ * @param[in] size Number of bytes to allocate, will be rounded up to the nearest ALIGNMENT boundary.
  *
- * @return Pointer to allocated payload on success.
- * @return NULL if size is 0, exceeds HEAP_SIZE, or heap is full.
+ * @return Pointer to the allocated payload on success.
  *
+ * @return NULL if size is 0, exceeds HEAP_SIZE, or no suitable block is available.
  */
 void *k_alloc(size_t size);
 
 /**
- * @brief Marks the given memory block as free.
+ * @brief Mark a previously allocated block as free.
  *
- * @param[in] ptr Pointer to the payload of a block previously returned by
- * k_alloc(). Passing NULL is safe and has no effect.
+ * @details
+ * Validates the canary written at allocation time and calls k_panic() on
+ * corruption. Coalesces the freed block with the immediately following free block.
+ * Backward coalescing is not yet implemented.
  *
- * @warning Triggers kernel_panic on heap corruption detection.
- * @warning Double-free is not detected (yet) and will corrupt the heap.
+ * @param ptr Pointer to the payload returned by k_alloc(). NULL is safe and has no effect.
  *
- * @note Does not check for double-free (yet)
+ * @warning Passing a pointer not returned by k_alloc() is undefined behaviour.
+ *
+ * @warning Double-free is not detected and will corrupt the heap.
  *
  * @return Nothing.
  */

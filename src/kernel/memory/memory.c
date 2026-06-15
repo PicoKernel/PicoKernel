@@ -39,28 +39,25 @@
 #include <stdint.h>
 #include <stdio.h>
 
-#define BLOCK_SIZE(b)        ((b)->size & ~1UL)                           /** Extracts size from current header size. */
-#define BLOCK_IS_FREE(b)     ((b)->size & 1)                              /** Extracts is_free status from header. */
-#define BLOCK_SET_FREE(b)    ((b)->size |= 1)                             /** Sets the is_free bit to 1. */
-#define BLOCK_SET_USED(b)    ((b)->size &= ~1UL)                          /** Sets the is_free bit to 0. */
-#define BLOCK_SET_SIZE(b, s) ((b)->size = ((s) & ~1UL) | ((b)->size & 1)) /** Sets block size in header while preserving the is_free flag. */
-#define ALIGNMENT            8                                            /** Byte alignment boundary for all allocations. */
-#define CANARY               0xDEADFACEDEADFACEULL                        /** Magic value written at the end of each allocated payload to detect heap overflow. */
-#define HEAP_SIZE            (300 * 1024)                                 /** Total heap size in bytes. */
+#define BLOCK_SIZE(b)        ((b)->size & ~1UL)                           /**< Extracts size from current header size. */
+#define BLOCK_IS_FREE(b)     ((b)->size & 1)                              /**< Extracts is_free status from header. */
+#define BLOCK_SET_FREE(b)    ((b)->size |= 1)                             /**< Sets the is_free bit to 1. */
+#define BLOCK_SET_USED(b)    ((b)->size &= ~1UL)                          /**< Sets the is_free bit to 0. */
+#define BLOCK_SET_SIZE(b, s) ((b)->size = ((s) & ~1UL) | ((b)->size & 1)) /**< Sets block size in header while preserving the is_free flag. */
+#define ALIGNMENT            8                                            /**< Byte alignment boundary for all allocations. */
+#define CANARY               0xDEADFACEDEADFACEULL                        /**< Magic value written at the end of each allocated payload to detect heap overflow. */
+#define HEAP_SIZE            (300 * 1024)                                 /**< Total heap size in bytes. */
 
 /**
- * @brief Heap block header.
- *
- * Stored immediately before each payload region.
- * Managed exclusively by the allocator.
+ * @brief Heap block header. Stored immediately before each payload region. Managed exclusively by the allocator.
  */
 typedef struct block_header {
     size_t size;               /**< Payload size in bytes, excluding header and canary, last bit stolen for is_free. */
     struct block_header *next; /**< Pointer to the next block in the heap list. */
 } block_header_t;
 
-static block_header_t *k__heap_head = NULL;                    /** Pointer to the first block in the heap. Anchor of the free list. */
-static uint8_t __attribute__((aligned(8))) k__heap[HEAP_SIZE]; /** Static heap buffer owned exclusively by the allocator. */
+static block_header_t *k__heap_head = NULL;                    /**< Pointer to the first block in the heap. Anchor of the free list. */
+static uint8_t __attribute__((aligned(8))) k__heap[HEAP_SIZE]; /**< Static heap buffer owned exclusively by the allocator. */
 
 /**
  * @brief Aligns a size value to the nearest ALIGNMENT boundary.
@@ -74,18 +71,7 @@ static inline size_t k__align(size_t size)
     return (size + ALIGNMENT - 1) & ~(ALIGNMENT - 1);
 }
 
-/**
- * @brief Initializes the memory allocator subsystem.
- *
- * Sets up the heap by placing a single free block spanning
- * the entire static heap buffer.
- *
- * @warning Must be called before any other allocator function.
- * @warning Calling this more than once will reset the heap and leak
- *          any previously allocated memory.
- *
- * @return Nothing.
- */
+/** @brief Initialise the heap with a single free block spanning the entire pool. */
 void k_alloc_init(void)
 {
     k__heap_head = (block_header_t *)k__heap;
@@ -94,21 +80,7 @@ void k_alloc_init(void)
     k__heap_head->next = NULL;
 }
 
-/**
- * @brief Allocates a block of memory from the heap.
- *
- * Searches the free list using a first-fit strategy. If a suitable
- * block is found, it is split if the remainder is large enough to
- * form a new free block. A canary value is written at the end of
- * the payload to detect heap overflows at free time.
- *
- * @param[in] size Number of bytes to allocate. Will be rounded up
- *                 to the nearest ALIGNMENT boundary.
- *
- * @return Pointer to the allocated payload on success.
- * @return NULL if size is 0, exceeds HEAP_SIZE, or no suitable
- *         block is available.
- */
+/** @brief Allocate a block from the heap using first-fit strategy. */
 void *k_alloc(size_t size)
 {
     if (size == 0 || size > (size_t)HEAP_SIZE) {
@@ -146,24 +118,7 @@ void *k_alloc(size_t size)
     return NULL;
 }
 
-/**
- * @brief Frees a previously allocated block of memory.
- *
- * Marks the block as free and attempts to coalesce it with the
- * immediately following block if it is also free. Validates the
- * canary value written at allocation time and triggers a kernel
- * panic if corruption is detected.
- *
- * @param[in] ptr Pointer to the payload of a block previously
- *                returned by k_alloc(). Passing NULL is safe and
- *                has no effect.
- *
- * @warning Passing a pointer not returned by k_alloc() is undefined
- *          behaviour.
- * @warning Double-free is not detected and will corrupt the heap.
- *
- * @return Nothing.
- */
+/** @brief Free a heap block and coalesce forward if the next block is also free. */
 void k_free(void *ptr)
 {
     if (ptr == NULL) {
@@ -183,16 +138,7 @@ void k_free(void *ptr)
 #ifdef KERNEL_DEBUG
 
 /**
- * @brief Dumps the current state of the heap to stdout.
- *
- * Walks the entire block list and prints each block's address,
- * payload size, free status, and canary validity. Prints a summary
- * of total blocks, used bytes, and allocator overhead.
- *
- * @note Only available when KERNEL_DEBUG is defined.
- * @note Canary is reported as N/A for free blocks.
- *
- * @return Nothing.
+ * @brief Dumps the current state of the heap to stdout. Only available when KERNEL_DEBUG is defined. Canary is reported as N/A for free blocks.
  */
 void k_dump(void)
 {
