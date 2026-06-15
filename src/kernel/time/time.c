@@ -31,7 +31,7 @@
 #include <stdbool.h>
 
 /**
- * Initializes the kernel time drivers.
+ * @brief Initializes the kernel time drivers.
  */
 void k_time_init(void)
 {
@@ -39,9 +39,7 @@ void k_time_init(void)
 }
 
 /**
- * Returns system uptime in milliseconds.
- *
- * Direct wrapper over timer driver.
+ * @brief Returns system uptime in milliseconds. Direct wrapper over timer driver.
  */
 uint32_t k_uptime_ms(void)
 {
@@ -49,9 +47,7 @@ uint32_t k_uptime_ms(void)
 }
 
 /**
- * Returns system uptime in microseconds.
- *
- * Direct wrapper over timer driver.
+ * @brief Returns system uptime in microseconds. Direct wrapper over timer driver.
  */
 uint64_t k_uptime_us(void)
 {
@@ -59,10 +55,7 @@ uint64_t k_uptime_us(void)
 }
 
 /**
- * Checks if a duration has elapsed since a given timestamp.
- *
- * Uses unsigned subtraction to remain correct across
- * uint32_t wraparound.
+ * @brief Checks if a duration has elapsed since a given timestamp. Uses unsigned subtraction to remain correct across uint32_t wraparound.
  *
  * @note timestamp must originate from k_uptime_ms()
  */

@@ -59,89 +59,96 @@
  *
  * Every `.h` file begins with this exact block:
  *
- * @code{.c}
- * /* SPDX-License-Identifier: GPL-3.0-or-later
- *  * SPDX-FileCopyrightText: 2025 PicoKernel Contributors
- *  */
- *
- * /**
- *  * @file filename.h
- *  * @author your-handle
- *  * @date DD-MM-YYYY
- *  * @brief One-line summary of what this header exposes.
- *  * @ingroup group_name
- *  *
- *  * @details
- *  * Longer description of the subsystem this header belongs to.
- *  *
- *  * Constraints:
- *  * - List hard constraints on usage or behaviour.
- *  *
- *  * Security:
- *  * - List security considerations, threat assumptions, or known weaknesses.
- *  */
- *
- * #ifndef PICOKERNEL_LAYER_FILENAME_H
- * #define PICOKERNEL_LAYER_FILENAME_H
- *
- * #includes
- *
- * // public function declarations with full Doxygen
- *
- * #ifdef KERNEL_DEBUG
- * // debug-only declarations
- * #endif
- *
- * #endif
- * @endcode
+ * @verbatim
+  /* SPDX-License-Identifier: GPL-3.0-or-later
+   * SPDX-FileCopyrightText: 2025 PicoKernel Contributors
+   */
+
+  /**
+   * @file filename.h
+   * @author your-handle
+   * @date DD-MM-YYYY
+   * @brief One-line summary of what this header exposes.
+   * @ingroup group_name
+   *
+   * @details
+   * Longer description of the subsystem this header belongs to.
+   *
+   * Constraints:
+   * - List hard constraints on usage or behaviour.
+   *
+   * Security:
+   * - List security considerations, threat assumptions, or known weaknesses.
+   */
+
+  #ifndef PICOKERNEL_LAYER_FILENAME_H
+  #define PICOKERNEL_LAYER_FILENAME_H
+
+  #includes
+
+  // public function declarations with full Doxygen
+
+  #ifdef KERNEL_DEBUG
+  // debug-only declarations
+  #endif
+
+  #endif
+  @endverbatim
  *
  * ---
  *
  * Every `.c` file begins with this exact block:
  *
- * @code{.c}
- * /* SPDX-License-Identifier: GPL-3.0-or-later
- *  * SPDX-FileCopyrightText: 2025 PicoKernel Contributors
- *  */
- *
- * /**
- *  * @file filename.c
- *  * @author your-handle
- *  * @date DD-MM-YYYY
- *  * @brief Implementation of <subsystem>.
- *  * @ingroup group_name
- *  *
- *  * @details
- *  * Implementation description. Include design decisions and data
- *  * structure choices here, not in the header.
- *  *
- *  * Design notes:
- *  * - Key design decisions worth knowing.
- *  *
- *  * Known limitations:
- *  * - Outstanding issues, with (yet) where applicable.
- *  *
- *  * @todo [Subsystem] [Type] Description. (Subsystem & Type must be one of the existing labels)
- *  */
- *
- * #include "filename.h"
- * #include "../subsystem/dependency.h"
- * #include <stdint.h>
- *
- * // macros document with - /** */
- * // internal typedefs never exposed in headers
- * // static globals document with - /** */
- * // static helper functions, full Doxygen
- * // public functions, full Doxygen
- *
- * #ifdef KERNEL_DEBUG
- * // debug-only implementations
- * #endif
- * @endcode
+ * @verbatim
+  /* SPDX-License-Identifier: GPL-3.0-or-later
+   * SPDX-FileCopyrightText: 2025 PicoKernel Contributors
+   */
+
+  /**
+   * @file filename.c
+   * @author your-handle
+   * @date DD-MM-YYYY
+   * @brief Implementation of <subsystem>.
+   * @ingroup group_name
+   *
+   * @details
+   * Implementation description. Include design decisions and data
+   * structure choices here, not in the header.
+   *
+   * Design notes:
+   * - Key design decisions worth knowing.
+   *
+   * Known limitations:
+   * - Outstanding issues, with (yet) where applicable.
+   *
+   * @todo [Subsystem] [Type] Description. (Subsystem & Type must be one of the existing labels)
+   */
+
+  #include "filename.h"
+  #include "subsystem/dependency.h"
+  #include <stdint.h>
+
+  // macros document with - /** */
+  // internal typedefs never exposed in headers
+  // static globals document with - /** */
+  // static helper functions, full Doxygen
+  // public functions, 1-2 line brief.
+
+  #ifdef KERNEL_DEBUG
+  // debug-only implementations
+  #endif
+  @endverbatim
  *
  * ---
  *
  * ## Function Documentation Template
+ *
+ * Functions must properly be documented in header file.
+ * Corresponding C file then should only need 1-2 lines of `@brief`
+ * Unless if the function is not in header like static or internal helper
+ * then they must be properly documented in C file.
+ *
+ * > *Details in the header, only brief in C unless the function is not in header.*
  *
  * @verbatim
   /**
@@ -216,7 +223,7 @@
  *
  * ## Todo Format
  *
- * Todos must include at least two labels: subsystem and type.
+ * Todos must be in .c files only and must include at least two labels: subsystem and type.
  * Valid labels mirror those on the
  * [Codeberg labels page](https://codeberg.org/PicoKernel/PicoKernel/labels).
  *
@@ -270,7 +277,7 @@
  * ### Embedding diagrams in .dox pages
  *
  * @code
- * @image html diagram_name.svg 
+ * @image html diagram_name.svg
  * @endcode
  *
  * The filename matches the `.svg` extension.

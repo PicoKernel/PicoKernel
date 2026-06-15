@@ -33,9 +33,7 @@
  * - TASK_YIELD currently behaves the same as TASK_OK.
  *
  * @todo [Kernel] [Enhancement] Implement blocking and wake-up mechanisms.
- *
  * @todo [Kernel] [Enhancement] Replace the flat task table with a dynamically allocated linked-list TCBs when introducing preemptive scheduling.
- *
  * @todo [Kernel] [Enhancement] Introduce a scheduler result/status API for task registration.
  */
 #include "scheduler.h"
@@ -75,14 +73,7 @@ static int k__task_id_ctr = 1;
  */
 static int k__needs_compact = 0;
 
-/**
- * @details
- * Triggers k_panic if k_alloc returns NULL as the scheduler cannot operate
- * without a valid task table.
- *
- * @note This function is intended to be called once during kernel
- *       initialization.
- */
+/** @brief Allocate the task table and reset all scheduler state. */
 void k_scheduler_init(size_t size)
 {
     k__tasks = k_alloc(sizeof(task_t) * size);
@@ -95,21 +86,7 @@ void k_scheduler_init(size_t size)
     k__needs_compact = 0;
 }
 
-/**
- * @details
- * Assigns the next available task table slot to the
- * provided task entry function. New tasks are placed
- * in TASK_READY state and assigned a unique task ID.
- *
- * Panics if the scheduler is unintialized and returns without registering the
- * task if the task name/entry is NULL, or the task table is at capacity.
- *
- * @note Task IDs are never reused, even after task
- *       removal through compaction.
- *
- * @warning The caller is responsible for ensuring that the task name remains
- *          valid for the lifetime of the task.
- */
+/** @brief Assign the next free task slot to the provided entry function. */
 void k_scheduler_register(const char *name, task_fn_t task)
 {
     if (k__tasks == NULL) {
@@ -136,26 +113,7 @@ void k_scheduler_register(const char *name, task_fn_t task)
     k__task_count++;
 }
 
-/**
- * @details
- * Executes all runnable tasks in registration order.
- *
- * Task state is updated according to the status returned
- * by the task entry function.
- *
- * Completed and failed tasks are removed during a cleanup
- * pass after execution.
- *
- * @note Cleanup is delayed until execution completion to avoid modifying the
- *       task table while it is being traversed.
- *
- * @note Yielded tasks currently behave the same as successfully completed
- *       iterations.
- *
- * @note k__task_count is snapshotted at the start of the execution loop.
- *       Tasks registered mid-cycle by a running task are deferred to the next
- *       scheduler cycle.
- */
+/** @brief Run all ready tasks once and compact dead tasks from the table. */
 void k_scheduler_run_once(void)
 {
     if (k__tasks == NULL || k__task_count == 0) {

@@ -18,10 +18,12 @@
  */
 
 #include "panic.h"
-#include "hardware/sync.h"
-#include "pico/stdlib.h"
+#include <hardware/sync.h>
 #include <stdio.h>
 
+/**
+ * @brief Triggers a kernel panic. Talks directly to the SDK. Doesn't return.
+ */
 noreturn void k_panic(const char *reason)
 {
     save_and_disable_interrupts();

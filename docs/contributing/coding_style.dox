@@ -61,11 +61,6 @@
  * static void k__coalesce_block(heap_block_t *block);
  * @endcode
  *
- * @note Existing pre-v1 functions do not yet 
- * follow this convention. A full rename pass is planned before v1.0.0.
- * All new contributions **must** follow the convention above, do not
- * introduce new functions using the old style.
- *
  * ### Types and Structs
  *
  * Types use `snake_case` with a `_t` suffix. Struct tags are only used
@@ -143,10 +138,6 @@
  *
  * Format: `PICOKERNEL_<LAYER>_<FILENAME>_H` in `SCREAMING_SNAKE_CASE`.
  *
- * @note A migration to fully qualified guards (`PICOKERNEL_<LAYER>_<FILENAME>_H`)
- * is planned before v1.0.0 to avoid collisions with third-party headers.
- * All new headers must use the qualified format from this point forward.
- *
  * ### Recommended include order
  *
  * @code{.c}
@@ -157,9 +148,9 @@
  * #include "kernel/panic.h"
  * #include "kernel/version.h"
  *
- * // 3. Pico SDK headers
- * #include "pico/stdlib.h"
- * #include "hardware/flash.h"
+ * // 3. Pico SDK and any other lib/ headers (should be in < >)
+ * #include <pico/stdlib.h>
+ * #include <hardware/flash.h>
  *
  * // 4. C standard library
  * #include <stdint.h>
@@ -175,7 +166,7 @@
  * |------|--------|
  * | Indentation | 4 spaces - no tabs |
  * | Line length | 100 characters soft limit, string literals are exempt |
- * | Braces | K&R style - opening brace on the same line, except for function definitions | 
+ * | Braces | K&R style - opening brace on the same line, except for function definitions |
  * | Pointer alignment | `uint8_t *ptr` - star with the variable, not the type |
  * | Blank lines | One between logical sections, two before a function definition |
  *
@@ -224,7 +215,7 @@
  *
  * | Rule | Rationale |
  * |------|-----------|
- * | C11–C23 (`-std=c11` minimum) | New code may use C23 features where the toolchain supports them | 
+ * | C11–C23 (`-std=c11` minimum) | New code may use C23 features where the toolchain supports them |
  * | No implicit `int` | All functions and variables explicitly typed |
  * | No `goto` | Except for cleanup patterns in kernel init, document each use |
  * | `NULL` not `0` for pointers | Semantic clarity |

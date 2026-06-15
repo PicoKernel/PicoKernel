@@ -19,8 +19,7 @@
  */
 
 #include "hw_timer.h"
-#include "pico/stdlib.h"
-#include "pico/time.h"
+#include <pico/time.h>
 #include <stdint.h>
 
 void d_timer_init(void)
@@ -28,9 +27,7 @@ void d_timer_init(void)
 }
 
 /**
- * Returns system uptime in milliseconds.
- *
- * Direct wrapper over pico-sdk's timer API.
+ * @brief Returns system uptime in milliseconds. Direct wrapper over pico-sdk's timer API.
  */
 uint32_t d_timer_now_ms(void)
 {
@@ -38,9 +35,7 @@ uint32_t d_timer_now_ms(void)
 }
 
 /**
- * Returns system uptime in microseconds.
- *
- * Direct wrapper over pico-sdk's timer API.
+ * @brief Returns system uptime in microseconds. Direct wrapper over pico-sdk's timer API.
  */
 uint64_t d_timer_now_us(void)
 {

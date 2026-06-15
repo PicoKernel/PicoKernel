@@ -36,6 +36,8 @@
  *                   May be NULL.
  *
  * @warning Neither returns nor waits for the ISRs.
+ *
+ * @return Nothing.
  */
 noreturn void k_panic(const char *reason);
 
