@@ -77,6 +77,15 @@ set(PICOKERNEL_SOURCES
     ${INTERFACE_SOURCES}
 )
 
+# ─── Add external lib/ ────────────────────────────────────────────────────────
+add_library(littlefs STATIC
+    lib/littlefs/lfs.c
+    lib/littlefs/lfs_util.c
+)
+target_include_directories(littlefs PUBLIC
+    lib/littlefs
+)
+
 # ─── Executable target ────────────────────────────────────────────────────────
 add_executable(picokernel ${PICOKERNEL_SOURCES})
 
@@ -130,6 +139,9 @@ target_link_libraries(picokernel
     pico_stdlib
     pico_cyw43_arch_none
     hardware_timer
+    hardware_flash
+    pico_flash
+    littlefs
 )
 
 # ─── stdio routing ────────────────────────────────────────────────────────────
