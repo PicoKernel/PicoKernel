@@ -51,6 +51,7 @@
 #include "panic/panic.h"
 #include <stddef.h>
 #include <stdint.h>
+#include <stdio.h>
 #include <string.h>
 
 /**
@@ -157,6 +158,10 @@ ipc_status_t k_queue_receive(k_queue_t *queue, void *msg)
  */
 size_t k_queue_count(const k_queue_t *queue)
 {
+    if (queue == NULL || k__queue_is_uninitialized(queue)) {
+        printf("ipc: k_queue_count called on NULL or uninitialized queue\n");
+        return 0;
+    }
     return queue->count;
 }
 
@@ -165,6 +170,10 @@ size_t k_queue_count(const k_queue_t *queue)
  */
 bool k_queue_is_full(const k_queue_t *queue)
 {
+    if (queue == NULL || k__queue_is_uninitialized(queue)) {
+        printf("ipc: k_queue_is_full called on NULL or uninitialized queue\n");
+        return false;
+    }
     return queue->count == queue->capacity;
 }
 
@@ -173,5 +182,9 @@ bool k_queue_is_full(const k_queue_t *queue)
  */
 bool k_queue_is_empty(const k_queue_t *queue)
 {
+    if (queue == NULL || k__queue_is_uninitialized(queue)) {
+        printf("ipc: k_queue_is_empty called on NULL or uninitialized queue\n");
+        return false;
+    }
     return queue->count == 0;
 }

@@ -135,6 +135,7 @@ ipc_status_t k_queue_receive(k_queue_t *queue, void *msg);
  * @param[in] queue Initialized queue.
  *
  * @return Number of messages currently stored.
+ * @return 0 if `queue` is NULL or uninitialized. An error is printed to stdout.
  */
 size_t k_queue_count(const k_queue_t *queue);
 
@@ -144,7 +145,7 @@ size_t k_queue_count(const k_queue_t *queue);
  * @param[in] queue Initialized queue.
  *
  * @return true if the queue has no free slots.
- * @return false otherwise.
+ * @return false otherwise, or if `queue` is NULL or uninitialized. An error is printed to stdout.
  */
 bool k_queue_is_full(const k_queue_t *queue);
 
@@ -154,7 +155,7 @@ bool k_queue_is_full(const k_queue_t *queue);
  * @param[in] queue Initialized queue.
  *
  * @return true if the queue holds no messages.
- * @return false otherwise.
+ * @return false otherwise, or if `queue` is NULL or uninitialized. An error is printed to stdout.
  */
 bool k_queue_is_empty(const k_queue_t *queue);
 
