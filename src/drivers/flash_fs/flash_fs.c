@@ -126,7 +126,7 @@ static int d__flash_hal_erase(const struct lfs_config *c, lfs_block_t block);
 static int d__flash_hal_sync(const struct lfs_config *c);
 
 /** @brief LittleFS configuration struct wiring HAL callbacks and partition parameters. */
-const static struct lfs_config d__cfg = {
+static const struct lfs_config d__cfg = {
     .context = NULL,                 /**< No per-instance context needed. */
     .read = d__flash_hal_read,       /**< XIP memory-mapped read callback. */
     .prog = d__flash_hal_prog,       /**< Page-aligned program callback. */
