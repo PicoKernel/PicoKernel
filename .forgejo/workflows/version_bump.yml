@@ -3,7 +3,7 @@ name: Version Bump
 on:
   push:
     tags:
-      - "v*.*.*"
+      - "v*.*.*-*"
 
 concurrency:
   group: version-bump
@@ -19,6 +19,19 @@ jobs:
         with:
           ref: main
           fetch-depth: 0
+          token: ${{ secrets.VERSION_TOKEN }}
+
+      - name: Import GPG key
+        run: |
+          echo "${{ secrets.GPG_PRIVATE_KEY }}" | gpg --batch --import
+          KEY_ID=$(gpg --list-secret-keys --with-colons | awk -F: '/^sec/{print $5; exit}')
+          git config --global user.signingkey "$KEY_ID"
+          git config --global commit.gpgsign true
+          echo "allow-loopback-pinentry" >> ~/.gnupg/gpg-agent.conf
+          echo "pinentry-mode loopback" >> ~/.gnupg/gpg.conf
+          gpgconf --kill gpg-agent
+        env:
+          GPG_PASSPHRASE: ${{ secrets.GPG_PASSPHRASE }}
 
       - name: Parse version from tag
         id: version
@@ -67,9 +80,12 @@ jobs:
           sed -i "s|img.shields.io/badge/version-[^)]*|img.shields.io/badge/version-${BADGE}-orange|" README.md
 
       - name: Commit version bump
+        env:
+          GPG_PASSPHRASE: ${{ secrets.GPG_PASSPHRASE }}
         run: |
-          git config user.name "PicoKernel Bot"
-          git config user.email "picokernel@protonmail.com"
+          echo "$GPG_PASSPHRASE" | gpg --batch --yes --passphrase-fd 0 --pinentry-mode loopback -s /dev/null 2>/dev/null || true
+          git config user.name "PicoKernel-Project"
+          git config user.email "picokernel@modprobe.dev"
           git add include/version.h docs/Doxyfile README.md
           git diff --cached --quiet && echo "Nothing to commit" && exit 0
           git commit -m "chore: bump version to ${{ steps.version.outputs.full }}"

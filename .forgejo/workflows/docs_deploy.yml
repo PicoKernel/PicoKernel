@@ -57,8 +57,8 @@ jobs:
       - name: Commit and push to PicoDocs
         run: |
           cd /tmp/picodocs
-          git config user.name "PicoKernel Bot"
-          git config user.email "picokernel@protonmail.com"
+          git config user.name "PicoKernel-Project"
+          git config user.email "picokernel@modprobe.dev"
           git add -A
           git diff --cached --quiet && echo "No changes to deploy" && exit 0
           git commit -m "docs: update from PicoKernel@${{ github.sha }}"
