@@ -4,7 +4,7 @@
 
 ![Build](https://codeberg.org/PicoKernel/PicoKernel/actions/workflows/build.yml/badge.svg)
 ![Lint](https://codeberg.org/PicoKernel/PicoKernel/actions/workflows/lint.yml/badge.svg)
-![Version](https://img.shields.io/badge/version-0.2.0--alpha-orange)
+![Version](https://img.shields.io/badge/version-0.3.0--alpha-orange)
 ![License](https://img.shields.io/badge/license-GPL--3.0--or--later-blue)
 ![Platform](https://img.shields.io/badge/platform-RP2350-lightgrey)
 ![Language](https://img.shields.io/badge/language-C-blue)
