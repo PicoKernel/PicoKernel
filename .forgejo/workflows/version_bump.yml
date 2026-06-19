@@ -57,6 +57,13 @@ jobs:
           sed -i "s|#define PICOKERNEL_VERSION_PATCH.*|#define PICOKERNEL_VERSION_PATCH ${PATCH}|" include/version.h
           sed -i "s|#define PICOKERNEL_VERSION_STR.*|#define PICOKERNEL_VERSION_STR   \"${V}\"|" include/version.h
 
+      - name: Update CMakeLists.txt version
+        run: |
+          V="${{ steps.version.outputs.full }}"
+          BASE="${V%%-*}"
+
+          sed -i -E "s|VERSION[[:space:]]+[0-9]+\.[0-9]+\.[0-9]+|VERSION ${BASE}|" CMakeLists.txt
+
       - name: Update docs/Doxyfile
         run: |
           sed -i "s|^PROJECT_NUMBER.*|PROJECT_NUMBER          = ${{ steps.version.outputs.full }}|" docs/Doxyfile
@@ -68,9 +75,10 @@ jobs:
 
       - name: Commit version bump
         run: |
-          git config user.name "PicoKernel Bot"
-          git config user.email "picokernel@protonmail.com"
-          git add include/version.h docs/Doxyfile README.md
+          echo "$GPG_PASSPHRASE" | gpg --batch --yes --passphrase-fd 0 --pinentry-mode loopback -s /dev/null 2>/dev/null || true
+          git config user.name "PicoKernel-Project"
+          git config user.email "picokernel@modprobe.dev"
+          git add include/version.h docs/Doxyfile README.md CMakeLists.txt
           git diff --cached --quiet && echo "Nothing to commit" && exit 0
           git commit -m "chore: bump version to ${{ steps.version.outputs.full }}"
           git push origin HEAD

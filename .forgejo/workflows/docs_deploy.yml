@@ -16,8 +16,6 @@ jobs:
     steps:
       - name: Checkout PicoKernel
         uses: actions/checkout@v4
-        with:
-          submodules: recursive
 
       - name: Install Doxygen and graphviz
         run: |
