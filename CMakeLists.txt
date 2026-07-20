@@ -20,16 +20,15 @@ include(${CMAKE_SOURCE_DIR}/lib/pico-sdk/external/pico_sdk_import.cmake)
 
 # ─── Project ──────────────────────────────────────────────────────────────────
 project(PicoKernel
-    VERSION     0.2.0
+    VERSION     0.3.0
     DESCRIPTION "A bare-metal cooperative OS for the Raspberry Pi Pico 2W"
     LANGUAGES   C CXX ASM
 )
 
 set(CMAKE_C_STANDARD          11)
 set(CMAKE_C_STANDARD_REQUIRED ON)
-set(CMAKE_C_EXTENSIONS        ON)  # strict C11, no GNU extensions
+set(CMAKE_C_EXTENSIONS        ON)
 
-# Always generate compile_commands.json — required by clangd and clang-tidy.
 set(CMAKE_EXPORT_COMPILE_COMMANDS ON)
 
 # ─── USB Delay ────────────────────────────────────────────────────────────
@@ -54,10 +53,6 @@ pico_sdk_init()
 #   you may need to re-run cmake if sources were added since the last run.
 #   Touch this file or run `cmake -B build` again to force re-evaluation.
 #
-#   Alternative: list sources explicitly with target_sources(). More
-#   verbose but immune to the re-run requirement. Switch to that approach
-#   if build reproducibility becomes a concern.
-#
 file(GLOB_RECURSE KERNEL_SOURCES    CONFIGURE_DEPENDS src/kernel/*.c)
 file(GLOB_RECURSE DRIVER_SOURCES    CONFIGURE_DEPENDS src/drivers/*.c)
 file(GLOB_RECURSE MODULE_SOURCES    CONFIGURE_DEPENDS src/modules/*.c)
@@ -70,7 +65,12 @@ if(NOT KERNEL_SOURCES)
         "Did you forget to run: git submodule update --init --recursive?")
 endif()
 
+if(NOT EXISTS ${CMAKE_SOURCE_DIR}/src/main.c)
+  message(FATAL_ERROR "src/main.c not found, every PicoKernel build needs an entry point.")
+endif()
+
 set(PICOKERNEL_SOURCES
+    src/main.c
     ${KERNEL_SOURCES}
     ${DRIVER_SOURCES}
     ${MODULE_SOURCES}
@@ -94,13 +94,6 @@ set_target_properties(picokernel PROPERTIES
 )
 
 # ─── Include directories ──────────────────────────────────────────────────────
-#
-# src/            → #include "kernel/memory/memory.h" (cross-layer includes)
-# src/kernel/     → #include "memory/memory.h"        (within kernel)
-# src/drivers/    → #include "hw_timer/hw_timer.h"    (within drivers)
-# src/modules/    → reserved for future modules
-# src/interface/  → reserved for future interfaces
-#
 target_include_directories(picokernel PRIVATE
     ${CMAKE_CURRENT_SOURCE_DIR}/src
     ${CMAKE_CURRENT_SOURCE_DIR}/src/kernel
@@ -126,15 +119,6 @@ if(KERNEL_DEBUG)
 endif()
 
 # ─── Pico SDK libraries ───────────────────────────────────────────────────────
-#
-# pico_stdlib           - UART stdio, time, GPIO, C runtime on RP2350
-# pico_cyw43_arch_none  - Initialises the CYW43 Wi-Fi/BT chip with no network
-#                         stack attached. Required from M7 (Wi-Fi scan) onward.
-#                         Linked now to avoid a CMake rebuild at that milestone.
-#                         When you need TCP/IP, swap to:
-#                           pico_cyw43_arch_lwip_threadsafe_background
-# hardware_timer        - Low-level hardware timer (hw_timer driver)
-#
 target_link_libraries(picokernel
     pico_stdlib
     pico_cyw43_arch_none
