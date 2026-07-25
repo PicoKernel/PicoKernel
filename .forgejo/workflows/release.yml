@@ -1,0 +1,88 @@
+name: Release
+
+on:
+  workflow_run:
+    workflows: ["Version Bump"]
+    types:
+      - completed
+
+jobs:
+  release:
+    name: Create Codeberg release
+    runs-on: codeberg-medium-lazy
+    if: ${{ github.event.workflow_run.conclusion == 'success' }}
+    timeout-minutes: 10
+    steps:
+      - name: Checkout source (full history + tags)
+        uses: actions/checkout@v4
+        with:
+          fetch-depth: 0
+          ref: main
+
+      - name: Determine current and previous version tags
+        id: tags
+        run: |
+          git fetch --tags --force
+          current_tag="${{ github.event.workflow_run.head_branch }}"
+          if [ -z "$current_tag" ]; then
+            current_tag="$(git describe --tags --abbrev=0)"
+          fi
+          previous_tag="$(git describe --tags --abbrev=0 "${current_tag}^" 2>/dev/null || echo "")"
+          echo "current_tag=$current_tag" >> "$GITHUB_OUTPUT"
+          echo "previous_tag=$previous_tag" >> "$GITHUB_OUTPUT"
+          echo "Current tag:  $current_tag"
+          echo "Previous tag: ${previous_tag:-<none>}"
+
+      - name: Parse stage and decide release type
+        id: semver
+        run: |
+          tag="${{ steps.tags.outputs.current_tag }}"
+          version="${tag#v}"
+          stage="${version#*-}"
+          [ "$stage" = "$version" ] && stage=""
+
+          echo "Stage: ${stage:-<none>}"
+
+          if echo "$stage" | grep -Eiq '^(alpha|beta|rc)(\.|$)'; then
+            echo "prerelease=true" >> "$GITHUB_OUTPUT"
+            echo "Decision: PRE-release (stage=$stage)"
+          else
+            echo "prerelease=false" >> "$GITHUB_OUTPUT"
+            echo "Decision: PRODUCTION release (stage=$stage)"
+          fi
+
+      - name: Generate changelog since previous tag
+        id: changelog
+        run: |
+          if [ -n "${{ steps.tags.outputs.previous_tag }}" ]; then
+            range="${{ steps.tags.outputs.previous_tag }}..${{ steps.tags.outputs.current_tag }}"
+          else
+            range="${{ steps.tags.outputs.current_tag }}"
+          fi
+          {
+            echo "log<<CHANGELOG_EOF"
+            git log "$range" --pretty=format:"- %s (%h)" --no-merges
+            echo ""
+            echo "CHANGELOG_EOF"
+          } >> "$GITHUB_OUTPUT"
+
+      - name: Create release on Codeberg
+        env:
+          RELEASE_TOKEN: ${{ secrets.RELEASE_TOKEN }}
+        run: |
+          repo="${{ github.repository }}"
+          tag="${{ steps.tags.outputs.current_tag }}"
+          prerelease="${{ steps.semver.outputs.prerelease }}"
+
+          payload=$(jq -n \
+            --arg tag "$tag" \
+            --arg name "$tag" \
+            --arg body "${{ steps.changelog.outputs.log }}" \
+            --argjson prerelease "$prerelease" \
+            '{tag_name: $tag, name: $name, body: $body, draft: false, prerelease: $prerelease}')
+
+          curl -sSf -X POST \
+            -H "Authorization: token ${RELEASE_TOKEN}" \
+            -H "Content-Type: application/json" \
+            -d "$payload" \
+            "https://codeberg.org/api/v1/repos/${repo}/releases"

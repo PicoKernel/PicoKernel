@@ -36,12 +36,12 @@
  * | M2 | Panic handler | ✅ Complete | `0.1.0-alpha` |
  * | M3 | Memory allocator | ✅ Complete | `0.2.0-alpha` |
  * | M4 | Cooperative round-robin scheduler | ✅ Complete | `0.2.0-alpha` |
- * | M5 | IPC primitives | 🔄 In progress | `0.3.0-alpha` |
- * | M6 | Flash storage (LittleFS) | 🔄 In progress | `0.3.0-alpha` |
- * | M7 | Wi-Fi scan | ⬜ Planned | `0.4.0-beta` |
- * | M8 | Raw packet capture | ⬜ Planned | `0.4.0-beta` |
- * | M9 | Serial shell | ⬜ Planned | `0.5.0-beta` |
- * | M10 | System stress test | ⬜ Planned | `0.5.0-beta` |
+ * | M5 | IPC primitives | ✅ Complete | `0.3.0-alpha` |
+ * | M6 | Flash storage (LittleFS) | ✅ Complete | `0.3.0-alpha` |
+ * | M7 | Wi-Fi scan | ✅ Complete | `0.4.0-beta` |
+ * | M8 | Raw packet capture | ✅ Complete  | `0.4.0-beta` |
+ * | M9 | Serial shell | 🔄 In progress | `0.5.0-beta` |
+ * | M10 | System stress test | ⬜ Planned | `1.0.0-stable` |
  *
  * ---
  *
@@ -140,7 +140,7 @@
  * Interactive command shell over UART. First Interface-layer component.
  * Commands routed to kernel via Kernel API, shell never touches drivers directly.
  *
- * ### M10 - System Stress Test (`0.5.0-beta`)
+ * ### M10 - System Stress Test (`1.0.0-stable`)
  *
  * Full system integration test. All subsystems exercised simultaneously.
  * Validates scheduler stability, memory allocator under load, IPC throughput,
@@ -159,7 +159,7 @@
  * | `MAJOR` | Full milestone cycle complete and stable |
  * | `MINOR` | Every 2 milestones completed |
  * | `PATCH` | >3 bugfixes, minor improvements, or doc-only changes |
- * | `-stage` | `alpha.N` / `beta.N` / `rc.N` |
+ * | `-stage` | `alpha.N` / `beta.N` / `rc.N` / `stable` |
  * | `.N` | Fix iteration within a stage |
  *
  * ### Stage Semantics
@@ -169,7 +169,7 @@
  * | `alpha` | Core subsystems still missing | APIs will break |
  * | `beta` | All planned subsystems present, testing in progress | Mostly stable |
  * | `rc.N` | Believed shippable, confirming stability | Stable |
- * | *(none)* | Tagged stable release | Stable |
+ * | `stable` | Tagged stable release | Stable |
  *
  * ### Version Map
  *
@@ -181,7 +181,7 @@
  * | `0.4.0-beta` | M7 + M8 complete, stabilising |
  * | `0.5.0-beta` | M9 + M10 complete |
  * | `0.5.0-rc.1` | Hardening for v1 |
- * | `1.0.0` | First stable release |
+ * | `1.0.0-stable` | First stable release |
  *
  * ### When to Bump
  *

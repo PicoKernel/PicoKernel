@@ -1,0 +1,107 @@
+# Run against one file (requires compile_commands.json in build/):
+#   clang-tidy -p build src/kernel/memory/memory.c
+#
+# Run against all project sources:
+#   find src -name '*.c' | xargs clang-tidy -p build
+#
+# First run: cmake -B build first to generate compile_commands.json.
+
+---
+Checks: >
+  bugprone-*,
+  cert-*,
+  clang-analyzer-*,
+  misc-*,
+  readability-*,
+  -fuchsia-*,
+  -llvm-*,
+  -google-*,
+  -abseil-*,
+  -readability-magic-numbers,
+  -cert-err33-c,
+  -misc-unused-parameters,
+  -misc-include-cleaner,
+  -readability-identifier-length,
+  -readability-else-after-return
+
+# ─── Disabled check rationale ──────────────────────────────────────────────────
+#
+# fuchsia-*
+#   Fuchsia OS project conventions (C++ async, FIDL). Entirely irrelevant.
+#
+# llvm-*
+#   LLVM project internal style rules. Not applicable outside LLVM infrastructure.
+#
+# google-*
+#   Google C++ Style Guide checks. Not C, not applicable to this project.
+#
+# abseil-*
+#   Abseil library-specific checks. No Abseil dependency in this project.
+#
+# readability-magic-numbers
+#   Embedded code is dense with hardware constants: register addresses
+#   (0x40014000), bit masks (0x1F), canary values (0xDEADFACEU), and Pico SDK
+#   peripheral definitions. Requiring a named constant for every literal would
+#   make driver code significantly harder to read and cross-reference with
+#   the RP2350 datasheet.
+#
+# cert-err33-c
+#   Requires checking the return value of every C standard library function.
+#   Several Pico SDK functions return void or use output parameters instead
+#   of return codes. Blanket enforcement produces false positives that
+#   cannot be suppressed without inline comments on every SDK call.
+#
+# misc-unused-parameters
+#   Redundant: already handled by -Wno-unused-parameter in CMake.
+#   Peripheral callback signatures are fixed by the SDK and frequently
+#   include parameters unused in a given implementation.
+#
+# misc-include-cleaner
+#   Fundamentally incompatible with how Pico SDK is meant to be used.
+#   pico/stdlib.h is a deliberate umbrella header that pulls in stdio,
+#   GPIO, and time APIs — that's the whole point of it. This check demands
+#   every symbol's specific header be included directly instead, which
+#   would fire on nearly every file in the project and fight the SDK's own
+#   documented usage pattern rather than catch a real problem.
+#
+# readability-identifier-length
+#   Short identifiers are idiomatic in kernel code: loop variables (i, n),
+#   pointer locals (p, q), boolean flags (ok, err). Enforcing a minimum
+#   length adds noise without improving correctness or readability.
+#
+# readability-else-after-return
+#   Early-return error-handling patterns with else branches are common and
+#   readable in this codebase. The check's mechanical removal of else
+#   changes visual structure without improving correctness.
+
+# Lint project headers only. Excludes pico-sdk/, build/, and system headers.
+# Matches files anywhere under src/ or include/.
+HeaderFilterRegex: '^.*(src|include)/.*\.(h|c)$'
+
+# All enabled findings are errors. Disable temporarily with:
+#   clang-tidy --warnings-as-errors='' -p build src/...
+WarningsAsErrors: "*"
+
+CheckOptions:
+  # Enforce snake_case throughout — consistent with Linux kernel style
+  # and the existing PicoKernel codebase conventions.
+  - key: readability-identifier-naming.FunctionCase
+    value: lower_case
+  - key: readability-identifier-naming.VariableCase
+    value: lower_case
+  - key: readability-identifier-naming.ParameterCase
+    value: lower_case
+  - key: readability-identifier-naming.GlobalVariableCase
+    value: lower_case
+  - key: readability-identifier-naming.LocalVariableCase
+    value: lower_case
+  - key: readability-identifier-naming.MacroDefinitionCase
+    value: UPPER_CASE
+  - key: readability-identifier-naming.TypedefCase
+    value: lower_case
+  - key: readability-identifier-naming.StructCase
+    value: lower_case
+  - key: readability-identifier-naming.EnumCase
+    value: lower_case
+  - key: readability-identifier-naming.EnumConstantCase
+    value: UPPER_CASE

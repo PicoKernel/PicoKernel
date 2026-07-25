@@ -1,0 +1,127 @@
+# Runs checks automatically on every `git commit`.
+#
+# ─── First-time setup ─────────────────────────────────────────────────────────
+#
+#   pip install pre-commit
+#   pre-commit install          # installs .git/hooks/pre-commit
+#
+# ─── Run manually against all files ──────────────────────────────────────────
+#
+#   pre-commit run --all-files
+#
+# ─── Update hook versions to latest ──────────────────────────────────────────
+#
+#   pre-commit autoupdate
+#
+# ─── Skip hooks for one commit (use sparingly) ────────────────────────────────
+#
+#   git commit --no-verify
+
+repos:
+  # ── Standard file hygiene ────────────────────────────────────────────────────
+  - repo: https://github.com/pre-commit/pre-commit-hooks
+    rev: v4.6.0
+    hooks:
+      - id: end-of-file-fixer
+        name: Ensure files end with a newline
+
+      - id: trailing-whitespace
+        name: Strip trailing whitespace
+
+      - id: check-merge-conflict
+        name: Detect unresolved merge conflict markers
+
+  # ── clang-format ─────────────────────────────────────────────────────────────
+  # Checks formatting but does NOT auto-fix in-place.
+  # If this hook fails, fix with:
+  #   clang-format -i <file>
+  #   clang-format -i $(find src -name '*.c' -o -name '*.h')
+  # Then `git add` the reformatted files and commit again.
+
+  - repo: https://github.com/pre-commit/mirrors-clang-format
+    rev: v18.1.8
+    hooks:
+      - id: clang-format
+        name: clang-format (check only — does not auto-fix)
+        files: '\.(c|h)$'
+        exclude: "^pico-sdk/"
+        args: [--dry-run, --Werror]
+
+  # ── Local hooks ──────────────────────────────────────────────────────────────
+  - repo: local
+    hooks:
+      # clang-tidy static analysis
+      #
+      # Requires compile_commands.json — run `cmake -B build` first (same
+      # prerequisite as the cppcheck hook below). Requires clang-tidy-18
+      # installed locally, matching the version CI runs.
+      - id: clang-tidy
+        name: clang-tidy static analysis
+        language: system
+        entry: clang-tidy-18
+        args:
+          - -p
+          - build
+          - --extra-arg=--gcc-toolchain=/usr
+        pass_filenames: true
+        files: '^src/.*\.c$'
+
+  - repo: local
+    hooks:
+      # cppcheck static analysis
+      #
+      # Uses --project=build/compile_commands.json so cppcheck has full
+      # compilation context (include paths, -D flags) rather than guessing.
+      # This means you must run `cmake -B build` before pre-commit will pass.
+      #
+      # pass_filenames: false — cppcheck analyses the whole project via the
+      # compile database rather than individual changed files. This is slower
+      # but avoids missing cross-file issues.
+      - id: cppcheck
+        name: cppcheck static analysis
+        language: system
+        entry: cppcheck
+        args:
+          - --enable=all
+          - --error-exitcode=1
+          - --suppressions-list=cppcheck-suppressions.txt
+          - --project=build/compile_commands.json
+          - --inline-suppr
+          - --std=c11
+          - -ilib/
+          - -ibuild/
+        pass_filenames: false
+        files: '\.(c|h)$'
+
+      # SPDX license header check
+      #
+      # Every .c and .h file under src/ and include/ must contain both:
+      #   SPDX-License-Identifier: GPL-3.0-or-later
+      #   SPDX-FileCopyrightText: 2025 PicoKernel Contributors
+      #
+      # Note: update the year in the FileCopyrightText grep pattern below
+      # when the calendar year changes (or broaden to a range: 2025-YYYY).
+      #
+      # pico-sdk/ is excluded — it is vendored code with its own license headers.
+      - id: spdx-check
+        name: SPDX license header check
+        language: system
+        entry: bash
+        args:
+          - -c
+          - |
+            fail=0
+            for f in "$@"; do
+              if ! grep -q "SPDX-License-Identifier: GPL-3.0-or-later" "$f"; then
+                echo "MISSING SPDX-License-Identifier: GPL-3.0-or-later  →  $f"
+                fail=1
+              fi
+              if ! grep -q "SPDX-FileCopyrightText: 2025 PicoKernel Contributors" "$f"; then
+                echo "MISSING SPDX-FileCopyrightText: 2025 PicoKernel Contributors  →  $f"
+                fail=1
+              fi
+            done
+            exit $fail
+          - --
+        files: '\.(c|h)$'
+        exclude: "^pico-sdk/"

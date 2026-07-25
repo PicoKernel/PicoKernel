@@ -1,0 +1,60 @@
+# Suppresses known false positives for bare-metal embedded C.
+# Format:
+#   suppressionId                  — global (all files)
+#   suppressionId:path/to/file.c   — file-specific
+#   *:directory/*                  — suppress everything in a directory
+# ─── Global suppressions ──────────────────────────────────────────────────────
+
+# cppcheck cannot find system headers (stdint.h, stdbool.h, string.h, etc.)
+# without being given the full cross-compile toolchain include path.
+# This suppresses the cascade of "undeclared identifier" noise that follows.
+# Real missing-include errors are still caught for project headers.
+missingIncludeSystem
+
+# cppcheck emits this if a suppression in this file never fires during
+# a given analysis run. Suppress it to prevent CI failures caused by
+# proactively-added suppressions that haven't triggered yet.
+unmatchedSuppression
+
+# cppcheck analyses each TU in isolation and cannot see cross-file call chains.
+# Kernel API functions defined in one .c and called from another are incorrectly
+# flagged as unused. Suppressed globally — unused code is caught at link time
+# by the linker (undefined reference) and at review instead.
+unusedFunction
+
+# cppcheck cannot resolve pico-sdk headers even with compile_commands.json
+# because the cross-compile sysroot is not on the host. missingIncludeSystem
+# covers <...> headers, this covers "pico/..." and "hardware/..." style.
+missingInclude
+
+# ─── Vendored and generated paths ─────────────────────────────────────────────
+# NOTE: these use *substring* globs (leading and trailing *), not path-prefix
+# globs. When cppcheck runs with --project=build/compile_commands.json, every
+# path it sees is absolute (e.g. /home/you/PicoKernel/lib/pico-sdk/src/...),
+# so a prefix-style pattern like "pico-sdk/*" never matches anything and the
+# suppression silently does nothing.
+
+# pico-sdk is a vendored dependency (submodule at lib/pico-sdk/). We do not
+# maintain it and its findings are not actionable. Suppress everything inside
+# it, matched anywhere in the path.
+*:*pico-sdk*
+
+# littlefs is a vendored dependency (submodule at lib/littlefs/). We do not
+# maintain it and its findings are not actionable. Suppress everything inside
+# it, matched anywhere in the path.
+*:*littlefs*
+
+# CMake build artifacts, generated linker scripts, and SDK-generated files.
+*:*/build/*
+
+# ─── Project-specific false positives ────────────────────────────────────────
+# Add per-file suppressions here as you encounter them. Use the most specific
+# suppression available (file-level over global). Document the reason.
+# Format: checkId:src/subsystem/file.c
+# Examples (uncomment if you hit these):
+# Canary comparison in memory.c: cppcheck may flag the canary != check as
+# "condition is always true/false" if it cannot see the write path.
+# knownConditionTrueFalse:src/kernel/memory/memory.c
+# Scheduler task array: cppcheck may warn about array index if it cannot
+# prove task_count stays within bounds across the translation unit.
+# arrayIndexOutOfBounds:src/kernel/scheduler/scheduler.c

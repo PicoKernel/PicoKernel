@@ -63,11 +63,11 @@ PicoKernel enforces a strict layering policy as shown below:
 | M2 | Panic handler | ✅ Complete |
 | M3 | Memory allocator | ✅ Complete |
 | M4 | Cooperative round-robin scheduler | ✅ Complete    |
-| M5 | IPC | 🔄 In progress |
-| M6 | Flash storage (LittleFS) | 🔄 In progress |
-| M7 | Wi-Fi scan | ⬜ Planned |
-| M8 | Raw packet capture | ⬜ Planned |
-| M9 | Serial shell | ⬜ Planned |
+| M5 | IPC | ✅ Complete  |
+| M6 | Flash storage (LittleFS) | ✅ Complete  |
+| M7 | Wi-Fi scan | ✅ Complete  |
+| M8 | Raw packet capture | ✅ Complete  |
+| M9 | Serial shell | 🔄 In progress |
 
 For roadmap and future architecture, see the [Developer Docs](https://picokernel.codeberg.page/PicoDocs/arch_overview.html)
 
@@ -114,7 +114,7 @@ PicoKernel uses a structured versioning scheme defined in `include/version.h`.
 | `MAJOR` | Increments when a full milestone cycle is complete and stable |
 | `MINOR` | Increments per 2 milestones completed |
 | `PATCH` | Bugfixes, small improvements, documentation-only changes |
-| `-stage` | `alpha` = core subsystems still missing; `beta` = all subsystems present, testing; `rc.N` = release candidate |
+| `-stage` | `alpha` = core subsystems still missing; `beta` = all subsystems present, testing; `rc.N` = release candidate; `stable` = stable release for production |
 | `.N` | Fix iteration within a stage |
 
 **Examples:**
@@ -127,8 +127,8 @@ PicoKernel uses a structured versioning scheme defined in `include/version.h`.
 | `0.4.0-beta` | M7 + M8 done, stabilising |
 | `0.5.0-beta` | M9 done |
 | `0.5.0-rc.1` | Hardening for v1 |
-| `1.0.0` | First stable release |
-| `1.0.1` | Critical hotfix to stable |
+| `1.0.0-stable` | First stable release |
+| `1.0.1-stable` | Critical hotfix to stable |
 
 The single source of truth for the current version is `include/version.h`
 
