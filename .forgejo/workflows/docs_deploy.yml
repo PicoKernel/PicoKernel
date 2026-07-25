@@ -17,6 +17,9 @@ jobs:
       - name: Checkout PicoKernel
         uses: actions/checkout@v4
 
+      - name: Fetch doxygen-awesome submodule only
+        run: git submodule update --init --depth 1 -- docs/doxygen-awesome
+
       - name: Install Doxygen and graphviz
         run: |
           sudo apt-get update -qq
@@ -24,6 +27,13 @@ jobs:
 
       - name: Generate Doxygen docs
         run: doxygen docs/Doxyfile
+
+      - name: Verify doxygen-awesome theme was applied
+        run: |
+          if ! grep -q "doxygen-awesome.css" docs/generated/html/index.html; then
+            echo "::error::doxygen-awesome stylesheet missing from output — check submodule checkout"
+            exit 1
+          fi
 
       - name: Inject extensions into HTML
         run: |
