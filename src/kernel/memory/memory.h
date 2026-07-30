@@ -82,7 +82,7 @@ void *k_alloc(size_t size);
  *
  * @return Nothing.
  */
-void k_free(void *);
+void k_free(void *ptr);
 
 #ifdef KERNEL_DEBUG
 /**

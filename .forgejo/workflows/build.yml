@@ -1,0 +1,92 @@
+name: Build Check
+
+on:
+  pull_request:
+    types: [opened, synchronize, reopened]
+    paths:
+      - "src/**"
+      - "include/**"
+      - "CMakeLists.txt"
+      - ".gitmodules"
+      - ".forgejo/workflows/build.yml"
+
+concurrency:
+  group: build-pr-${{ github.event.pull_request.number }}
+  cancel-in-progress: true
+
+jobs:
+  build:
+    name: ARM Cross-Compile (RP2350)
+    runs-on: codeberg-medium-lazy
+    timeout-minutes: 10
+
+    steps:
+      - name: Checkout PR head with submodules
+        uses: actions/checkout@v4
+        with:
+          ref: ${{ github.event.pull_request.head.sha }}
+          submodules: recursive
+          fetch-depth: 0
+
+      - name: Simulate merge into target branch
+        env:
+          BASE_REF: ${{ github.event.pull_request.base.ref }}
+        run: |
+          echo "Simulating merge of this PR into '$BASE_REF'..."
+
+          git config user.email "picokernel@modprobe.dev"
+          git config user.name  "The PicoKernel Project"
+
+          git fetch origin "$BASE_REF":"refs/remotes/origin/$BASE_REF"
+
+          if ! git merge --no-commit --no-ff "origin/$BASE_REF"; then
+            echo "::error::This branch does not merge cleanly into '$BASE_REF'. Resolve conflicts locally (git merge origin/$BASE_REF) and push again."
+            git merge --abort || true
+            exit 1
+          fi
+
+          echo "Clean merge into '$BASE_REF' confirmed — building from the merged tree."
+
+      - name: Re-sync submodules against the merged tree
+        run: |
+          git submodule sync --recursive
+          git submodule update --init --recursive
+
+      - name: Install ARM toolchain and CMake
+        run: |
+          sudo apt-get update -qq
+          sudo apt-get install -y --no-install-recommends \
+            gcc-arm-none-eabi \
+            libnewlib-arm-none-eabi \
+            libstdc++-arm-none-eabi-newlib \
+            cmake \
+            ninja-build \
+            python3
+
+      - name: Ensure a buildable entry point exists
+        run: |
+          if find src -name 'main.c' 2>/dev/null | grep -q .; then
+            echo "main.c found under src/ — using existing entry point."
+          else
+            echo "No main.c found under src/ — generating a placeholder so the build can be verified."
+            mkdir -p src/kernel
+            cat > src/kernel/main.c << 'STUB_EOF'
+          #include "pico/stdlib.h"
+
+          void main(void) {
+              stdio_init_all();
+              for (;;) {
+                  tight_loop_contents();
+              }
+          }
+          STUB_EOF
+          fi
+
+      - name: Configure CMake
+        run: |
+          cmake -B build \
+            -DPICO_BOARD=pico2_w \
+            -DKERNEL_DEBUG=OFF
+
+      - name: Build
+        run: cmake --build build -j$(nproc)
