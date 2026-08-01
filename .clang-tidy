@@ -22,7 +22,8 @@ Checks: >
   -misc-unused-parameters,
   -misc-include-cleaner,
   -readability-identifier-length,
-  -readability-else-after-return
+  -readability-else-after-return,
+  -clang-analyzer-security.insecureAPI.DeprecatedOrUnsafeBufferHandling
 
 # ─── Disabled check rationale ──────────────────────────────────────────────────
 #
@@ -73,6 +74,14 @@ Checks: >
 #   Early-return error-handling patterns with else branches are common and
 #   readable in this codebase. The check's mechanical removal of else
 #   changes visual structure without improving correctness.
+
+# clang-analyzer-security.insecureAPI.DeprecatedOrUnsafeBufferHandling
+#   Flags memcpy/memset/etc. and recommends the C11 Annex K bounds-checking
+#   variants (memcpy_s, etc.). Annex K is optional and newlib (this
+#   project's libc) does not implement it the suggested replacement does
+#   not exist on this toolchain. Bounds safety here comes from the driver
+#   boundary's struct-based returns and explicit length arguments, not
+#   Annex K wrappers.
 
 # Lint project headers only. Excludes pico-sdk/, build/, and system headers.
 # Matches files anywhere under src/ or include/.

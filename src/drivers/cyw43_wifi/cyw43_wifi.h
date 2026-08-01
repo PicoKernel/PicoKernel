@@ -3,7 +3,7 @@
  */
 
 /**
- * @file wifi.h
+ * @file cyw43_wifi.h
  * @author datenbar
  * @date 12-07-2026
  * @brief driver API for the CYW43 WiFi driver (STA, AP, and monitor-mode capture).

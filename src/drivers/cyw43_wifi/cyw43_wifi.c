@@ -3,7 +3,7 @@
  */
 
 /**
- * @file wifi.c
+ * @file cyw43_wifi.c
  * @author datenbar
  * @date 12-07-2026
  * @brief Implements the CYW43 WiFi driver.

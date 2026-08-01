@@ -58,11 +58,18 @@ repos:
       - id: clang-tidy
         name: clang-tidy static analysis
         language: system
-        entry: clang-tidy-18
+        entry: bash
         args:
-          - -p
-          - build
-          - --extra-arg=--gcc-toolchain=/usr
+          - -c
+          - |
+            EXTRA_ARGS=""
+            for inc in $(arm-none-eabi-gcc -E -v -xc /dev/null 2>&1 \
+                | sed -n '/#include <\.\.\.> search starts here:/,/End of search list/p' \
+                | grep '^ ' | sed 's/^ //'); do
+              EXTRA_ARGS="$EXTRA_ARGS --extra-arg=-isystem$inc"
+            done
+            clang-tidy -p build $EXTRA_ARGS "$@"
+          - --
         pass_filenames: true
         files: '^src/.*\.c$'
 
