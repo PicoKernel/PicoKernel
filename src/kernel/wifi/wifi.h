@@ -292,7 +292,7 @@ int k_wifi_monitor_set_channel(uint8_t channel);
  * Subsequent calls update the dwell time and restart hopping.
  *
  * @param[in] dwell_ms Time to remain on each channel before hopping, in milliseconds.
- *                     Values below MIN_HOP_DWELL_MS are rejected.
+ *                     Values below MIN_HOP_DWELL_MS (See @file cyw43_wifi.h) are rejected.
  *
  * @return 0 on success, negative error code if monitor mode is
  *         inactive or dwell_ms is below the minimum.

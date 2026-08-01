@@ -1,3 +1,7 @@
+/* SPDX-License-Identifier: GPL-3.0-or-later
+ * SPDX-FileCopyrightText: 2025 PicoKernel Contributors
+ */
+
 /**
  * @file pkt_logger.h
  * @author rootmnt
@@ -7,20 +11,20 @@
  *
  * @details
  * Captures raw IEEE 802.11 frames using the kernel WiFi monitor-mode
- * interface and prints every received frame to serial as a hexadecimal
- * dump. Frames are delivered asynchronously through a registered receive
- * callback, while a cooperative scheduler task processes and prints them.
+ * interface and prints captured frames to serial as hexadecimal dumps.
+ * Frames are delivered asynchronously through a registered receive callback,
+ * while a cooperative scheduler task processes and prints buffered frames.
+ * Subsequent calls only reconfigure the capture mode.
  *
  * Constraints:
- * - pkt_logger_init() must be called exactly once, after kernel WiFi and
- *   scheduler initialization, but before the scheduler begins executing tasks.
- * - The capture channel must be in the range 1-13.
- * - The receive callback must execute quickly and only buffer received
- *   frames for processing by the scheduler task.
- * - Every received frame is preserved until processed, ensuring complete
- *   frame dumps.
- * - No kernel or driver code may include this header. This header is a
- *   leaf: it depends on the kernel WiFi interface, and nothing else depends on it.
+ * - m_pkt_logger_init() must be called after kernel WiFi and scheduler
+ *   initialization, but before the scheduler begins executing tasks.
+ * - When channel hopping is disabled, channel must be in the range 1-13.
+ * - When channel hopping is enabled, channel must be 0 and dwell_ms must be
+ *   greater than or equal to MIN_HOP_DWELL_MS (See @file cyw43_wifi.h).
+ * - Frames are buffered for deferred processing by the scheduler task to
+ *   minimize work performed in the receive callback. If the receive buffer
+ *   is already occupied, newly received frames are discarded.
  *
  * Security:
  * - Captured frame contents are untrusted radio input and are only
@@ -38,18 +42,23 @@
 #include <stdint.h>
 
 /**
- * @brief Initializes the packet logger module.
+ * @brief Initializes or reconfigures packet capture.
  *
  * @details
- * Configures the kernel WiFi subsystem for monitor mode on the specified
- * IEEE 802.11 channel, registers the packet receive callback, and registers
- * the packet logger task with the scheduler.
+ * Configures the kernel WiFi subsystem for monitor mode using either a
+ * fixed capture channel or automatic channel hopping. On the first successful
+ * call, registers the packet receive callback and packet logger task with the scheduler.
+ * Subsequent calls only reconfigure the capture mode.
  *
- * @param channel IEEE 802.11 channel to capture on (1-13).
+ * @param[in] channel  Fixed IEEE 802.11 capture channel (1-13),
+ *                     or 0 when channel hopping is enabled.
+ * @param[in] dwell_ms Channel hopping dwell time in milliseconds.
+ *                     Must be at least MIN_HOP_DWELL_MS (See @file cyw43_wifi.h) when hopping is enabled.
+ * @param[in] hop      true to enable channel hopping,
+ *                     false to use the fixed capture channel.
  *
- * @retval true  Module initialized successfully.
- * @retval false Initialization failed.
+ * @return true on successful initialization, false otherwise.
  */
-bool pkt_logger_init(uint8_t channel);
+bool m_pkt_logger_init(uint8_t channel, uint16_t dwell_ms, bool hop);
 
 #endif
