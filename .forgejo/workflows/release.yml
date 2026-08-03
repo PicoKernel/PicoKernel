@@ -2,9 +2,11 @@ name: Release
 
 on:
   workflow_run:
-    workflows: ["Version Bump"]
+    workflows: ["version_bump.yml"]
     types:
       - completed
+
+  workflow_dispatch:
 
 jobs:
   release:
