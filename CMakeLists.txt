@@ -20,7 +20,7 @@ include(${CMAKE_SOURCE_DIR}/lib/pico-sdk/external/pico_sdk_import.cmake)
 
 # ─── Project ──────────────────────────────────────────────────────────────────
 project(PicoKernel
-    VERSION     0.3.0
+    VERSION 0.4.0
     DESCRIPTION "A bare-metal cooperative OS for the Raspberry Pi Pico 2W"
     LANGUAGES   C CXX ASM
 )
