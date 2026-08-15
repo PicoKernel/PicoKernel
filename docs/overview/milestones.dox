@@ -96,8 +96,6 @@
  *
  * ---
  *
- * ## Active Milestones
- *
  * ### M5 - IPC Primitives (`0.3.0-alpha`)
  *
  * **Goal:** Allow modules to communicate without direct coupling.
@@ -122,23 +120,31 @@
  *
  * ---
  *
- * ## Planned Milestones
- *
  * ### M7 - Wi-Fi Scan (`0.4.0-beta`)
  *
  * Scan for visible Wi-Fi networks via the CYW43 driver.
  * Results delivered to the requesting module through IPC.
  * No network stack, scan only.
  *
+ * ---
+ *
  * ### M8 - Raw Packet Capture (`0.4.0-beta`)
  *
  * Put the CYW43 radio into monitor mode and capture raw 802.11 frames.
  * Frames buffered via IPC and exposed to requesting modules.
  *
+ * ---
+ *
+ * ## Active Milestones
+ *
  * ### M9 - Serial Shell (`0.5.0-beta`)
  *
  * Interactive command shell over UART. First Interface-layer component.
  * Commands routed to kernel via Kernel API, shell never touches drivers directly.
+ *
+ * ---
+ *
+ * ## Planned Milestones
  *
  * ### M10 - System Stress Test (`1.0.0-stable`)
  *

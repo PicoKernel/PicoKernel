@@ -47,7 +47,7 @@
  * additional interface types, expanded module coverage, and hardware
  * targets beyond the current Pico 2W.
  *
- * @image html architecture-future.svg "PicoKernel Architecture — Long-Term Vision" width=100%
+ * @image html architecture-future.svg "PicoKernel Architecture - Long-Term Vision" width=100%
  *
  * ---
  *

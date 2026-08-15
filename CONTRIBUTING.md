@@ -22,6 +22,15 @@ git clone https://codeberg.org/your-username/PicoKernel.git
 cd PicoKernel
 git submodule update --init --recursive
 
+# Connect your fork to the main repo
+git remote add upstream https://codeberg.org/PicoKernel/PicoKernel.git
+git remote -v   # confirm origin = your fork, upstream = PicoKernel/PicoKernel
+
+# Keep dev in sync before branching
+git fetch upstream
+git checkout dev
+git rebase upstream/dev
+
 # Branch from dev - never from main
 git checkout dev && git pull origin dev
 git checkout -b feat/{subsystem-initial}/your-feature
@@ -42,6 +51,21 @@ Every PR must satisfy all of the following before it will be reviewed:
 - [ ] SPDX + file header block present on every new or modified `.c` and `.h`
 - [ ] No diagnostic output outside `#ifdef KERNEL_DEBUG`
 - [ ] PR title, summary, and test evidence are filled. Empty descriptions are returned without review
+
+---
+
+## Opening the PR
+
+```bash
+# Push your branch to your fork
+git push origin feat/<layer>/<name>
+```
+
+On Codeberg: **Pull Requests -> New Pull Request**, then set:
+
+- Base repository: `PicoKernel/PicoKernel`, base branch: `dev`
+- Compare: your fork, branch `feat/<layer>/<name>`
+Fill in the PR title, summary, and test evidence per the checklist above before requesting review.
 
 ---
 

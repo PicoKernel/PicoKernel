@@ -42,17 +42,21 @@
  *
  * **1. Fork** the repository on Codeberg.
  *
- * **2. Clone your fork:**
+ * **2. Clone your fork and connect upstream:**
  * @code{.sh}
  * git clone https://codeberg.org/your-username/PicoKernel.git
  * cd PicoKernel
  * git submodule update --init --recursive
+ *
+ * git remote add upstream https://codeberg.org/PicoKernel/PicoKernel.git
+ * git remote -v   # confirm origin = your fork, upstream = PicoKernel/PicoKernel
  * @endcode
  *
  * **3. Branch from `dev` never from `main`:**
  * @code{.sh}
+ * git fetch upstream
  * git checkout dev
- * git pull origin dev
+ * git rebase upstream/dev
  * git checkout -b feat/layer-initial/your-feature
  * @endcode
  *
@@ -67,7 +71,14 @@
  * - Documentation standards: @ref docs_style
  * - Architecture rules: @ref arch_overview
  *
- * **5. Open a Pull Request targeting `dev`.**
+ * **5. Push your branch and open a Pull Request targeting `dev`.**
+ *
+ * @code{.sh}
+ * git push origin feat/layer-initial/your-feature
+ * @endcode
+ *
+ * On Codeberg: **Pull Requests -> New Pull Request**, base repository
+ * `PicoKernel/PicoKernel`, base branch `dev`, compare your fork's branch.
  *
  * Fill all PR fields: title, summary, and test evidence.
  * An empty PR description will be returned for revision without review.
