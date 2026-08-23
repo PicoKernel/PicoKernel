@@ -93,6 +93,7 @@ repos:
           - --error-exitcode=1
           - --suppressions-list=cppcheck-suppressions.txt
           - --project=build/compile_commands.json
+          - --check-level=exhaustive
           - --inline-suppr
           - --std=c11
           - -ilib/
