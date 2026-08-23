@@ -110,6 +110,7 @@ jobs:
             --enable=all \
             --error-exitcode=1 \
             --suppressions-list=cppcheck-suppressions.txt \
+            --check-level=exhaustive \
             --project=build/compile_commands.json \
             --inline-suppr \
             --std=c11 \
