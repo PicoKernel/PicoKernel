@@ -91,7 +91,7 @@ jobs:
         run: |
           FILES="$(find src -name '*.c')"
           if [ -z "$FILES" ]; then
-            echo "No .c files under src/ yet — nothing to tidy-check."
+            echo "No .c files under src/ yet - nothing to tidy-check."
             exit 0
           fi
 
@@ -99,10 +99,13 @@ jobs:
           for inc in $(arm-none-eabi-gcc -E -v -xc /dev/null 2>&1 \
               | sed -n '/#include <\.\.\.> search starts here:/,/End of search list/p' \
               | grep '^ ' | sed 's/^ //'); do
+            case "$inc" in
+              */gcc/arm-none-eabi/*) continue ;;  # GCC builtin headers shadow clang's
+            esac
             EXTRA_ARGS="$EXTRA_ARGS --extra-arg=-isystem$inc"
           done
 
-          echo "$FILES" | xargs clang-tidy-18 -p build $EXTRA_ARGS
+          echo "$FILES" | xargs clang-tidy-18 -p build --header-filter="^$(pwd)/(src|include)/" $EXTRA_ARGS
 
       - name: Run cppcheck
         run: |

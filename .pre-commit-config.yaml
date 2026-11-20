@@ -66,9 +66,12 @@ repos:
             for inc in $(arm-none-eabi-gcc -E -v -xc /dev/null 2>&1 \
                 | sed -n '/#include <\.\.\.> search starts here:/,/End of search list/p' \
                 | grep '^ ' | sed 's/^ //'); do
+              case "$inc" in
+                */gcc/arm-none-eabi/*) continue ;;  # GCC builtin headers shadow clang's
+              esac
               EXTRA_ARGS="$EXTRA_ARGS --extra-arg=-isystem$inc"
             done
-            clang-tidy -p build $EXTRA_ARGS "$@"
+            clang-tidy -p build --header-filter="^$(pwd)/(src|include)/" ${EXTRA_ARGS[@]} "$@"
           - --
         pass_filenames: true
         files: '^src/.*\.c$'
