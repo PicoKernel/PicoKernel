@@ -31,16 +31,13 @@ set(CMAKE_C_EXTENSIONS        ON)
 
 set(CMAKE_EXPORT_COMPILE_COMMANDS ON)
 
-# ─── USB Delay ────────────────────────────────────────────────────────────
-
-if (NOT DEFINED PICO_STDIO_USB_CONNECT_WAIT_TIMEOUT_MS)
-  set(PICO_STDIO_USB_CONNECT_WAIT_TIMEOUT_MS 3000)
-endif()
-
 # Kernel debug instrumentation: heap dumps (kdump), verbose panic output.
 # Gated by #ifdef KERNEL_DEBUG in source never active in release builds.
 # Enable: cmake -DKERNEL_DEBUG=ON ..
 option(KERNEL_DEBUG "Enable kernel debug instrumentation (kdump, verbose logging)" OFF)
+
+# ─── Add Pico-SDK configuration ───────────────────────────────────────────────
+list(APPEND PICO_CONFIG_HEADER_FILES ${CMAKE_SOURCE_DIR}/include/config.h)
 
 # ─── Pico SDK init ────────────────────────────────────────────────────────────
 pico_sdk_init()
